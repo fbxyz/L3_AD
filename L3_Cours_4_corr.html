@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L3_Cours_4_corr.knit</title>
+    <meta charset="utf-8" />
+    <script src="assets/kePrint-0.0.1/kePrint.js"></script>
+    <link href="assets/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/theme_flo.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/tools.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: center, middle, inverse, title-slide, animated, fadeIn
+# Analyse de données L3 2021-2022
+# Cours n°4- La corrélation&lt;br /&gt; &lt;br /&gt;
+### Florian Bayer
+
+&lt;img src="./assets/css/logo_p1_col.jpg" STYLE="position:absolute; BOTTOM:20px; RIGHT:5px; WIDTH:15%;  "/&gt;
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Rappels et objectifs du cours
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Lors du précédent cours, nous avons vu comment vérifier l’existence d’une relation entre deux caractères discrets à l’aide du `\(\chi^2\)`.
+
+--
+
+Pour la plupart des caractères **quantitatifs**, le `\(\chi^2\)` n’est pas utilisable, sauf si on discrétise la série de données (Age `\(\rightarrow\)` classes d’âges).
+
+On utilise donc un autre outil statistique pour mesurer **l'intensité de la relation** entre deux caractères quantitatifs continus : le **coefficient de corrélation**.
+
+Il est complémentaire à la **régression linéaire** et à la régression multiple qui visent à résumer et/ou **modéliser** un phénomène par une ou plusieurs variables.
+
+--
+
+En géographie, **identifier** puis **modéliser** des **relations** permet de comprendre un phénomène sur un espace donné, de prévoir la survenue de ce phénomène ou encore de déterminer les variables qui manquent à notre explication.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 1- La corrélation
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Relation et dépendance 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+.font80[
+Une relation entre deux caractères quantitatifs `\(x\)` et `\(y\)` peut-être mesurée si l'attribution des valeurs de `\(y\)` *dépendent* des valeurs de `\(x\)` ou inversement. 
+
+Par exemple, lorsque `\(x\)` augmente de 1, `\(y\)` augmente aussi de 1. Autrement dit, il y a une **relation** si les valeurs de `\(x\)` ne sont font pas au hasard par rapport au valeurs de `\(y\)`.
+
+Si `\(y\)` dépend de `\(x\)`, on peut prédire avec une certaine marge d’erreur les valeurs de `\(y\)` en connaissant les valeurs de `\(x\)` à l'aide d'une fonction `\(y=f(x)\)` : 
+
+Exemple : 
+
+Il existe une relation entre la température et l'altitude, exprimée par l’équation :
+`\(T_a = -0.006a + T_0\)`
+- `\(T_a\)` : température à l'altitude a
+- `\(a\)` : altitude en mètre
+- `\(T_0\)` : température au niveau de la mer. 
+
+Tous les **1 m**, la température **baisse de 0,006 °C** (0.6 °C tous les 100 m)
+]]
+
+.pull-right[
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-2-1.png" width="100%" /&gt;
+
+]
+
+---
+class: animated, fadeIn
+## Relation et dépendance 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La notation des variables est importante. Si vous écrivez `\(y=f(x)\)`, vous postulez: 
+- que `\(y\)` est la variable à **expliquer**. On parle de variable **dépendante**.
+- que `\(x\)` est la variable **explicative**. On parle de variable **indépendante**.
+
+--
+
+S'il existe une relation, les valeurs de `\(x\)` permettront de prédire les valeurs de `\(y\)` alors que la réciproque n'est pas toujours vrai. Il faut donc être rigoureux et précis lors de l’énoncé de votre hypothèse et **réfléchir au sens de la dépendance**.
+
+--
+
+Afin de mesurer cette éventuelle relation, il est nécessaire :
+- de la visualiser sa **forme** à l'aide d'un graphique : le **diagramme de corrélation**.
+- de mesurer son **intensité** et son **signe**, à l'aide d'un **coefficient de corrélation**, qu'il faudra ensuite tester significativement.
+- dans certains cas, de **modéliser** la relation à l'aide d'une droite d'équation : la **régression linéaire**.
+
+---
+class: animated, fadeIn
+## Interprétations graphiques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+En croisant les valeurs de `\(x\)` et de `\(y\)` sur un graphique, on forme un nuage de points dont la forme permet de caractériser la relation à via son &lt;span style="color:#FF6B6B"&gt;**intensité**&lt;/span&gt;, sa &lt;span style="color:#4b8b8b"&gt;**forme**&lt;/span&gt; et son &lt;span style="color:#FF9F1C"&gt;**signe**&lt;/span&gt;.
+
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-3-1.png" width="49%" /&gt;
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-4-1.png" width="49%" /&gt;
+
+---
+class: animated, fadeIn
+## Interprétations graphiques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-5-1.png" width="65%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Relation et dépendance
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Une fois que la relation entre `\(x\)` et `\(y\)` est entrevue graphiquement, il est possible de mesurer **l'intensité** de la relation à l'aide du **coefficient de corrélation** noté `\(R\)`.
+
+--
+
+Outre l'intensité d'une relation monotone, il renseigne également sur son **signe.** 
+
+Il existe plusieurs coefficients de corrélation. Les plus utilisées sont:
+- Le coefficient de corrélation de **Pearson** qui permet d'analyser les **relations linéaires**. Il est en lien avec la **régression linéaire**.
+- Le coefficient de corrélation de **Spearman** qui permet d'analyser les **relations non-linéaires monotones**. Il est aussi appelé coefficient de corrélation de rang. 
+
+.center-img[
+.pull-left[
+&lt;img src="./assets/images/4-corr/pearson.jpg" width="40%" /&gt;
+] 
+
+.pull-right[
+&lt;img src="./assets/images/4-corr/spearman.jpg" width="35%" /&gt;
+] 
+]
+
+
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- Le coefficient de corrélation linéaire de Bravais-Pearson
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## La covariance
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le coefficient de corrélation linéaire de Bravais-Pearson permet de détecter la présence ou l'absence d'une **relation monotone linéaire** entre deux caractères quantitatifs continus. 
+
+**Il est mal adapté aux relations non-linéaires.** 
+
+--
+
+Pour calculer ce coefficient il faut tout d'abord calculer la **covariance** :
+une mesure de la liaison linéaire entre deux variables quantitatives. 
+- Une covariance proche de zéro correspond à l'indépendance (absence de relation).
+- Une covariance négative indique une relation inverse.
+- Une covariance positive indique une relation de X et Y dans le même sens. 
+
+--
+
+La covariance est égale à la moyenne du produit des valeurs de deux variables moins le produit des deux moyennes
+Cov(X,Y) = moyenne(x . y) – [moyenne(x) . moyenne(y)]
+
+.center-img[
+`\(cov_{x,y}=\frac{\sum_{i=1}^{N}x_i.y_i}{N}-(\bar{x}.\bar{y})\)` ou `\(cov_{x,y}=\frac{\sum_{i=1}^{N}(x_{i}-\bar{x})(y_{i}-\bar{y})}{N}\)` 
+]
+
+---
+class: animated, fadeIn
+## R de Bravais-Pearson
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La covariance est un bon indicateur de mesure de relation, mais n'est pas standardisée, ce qui ne permet pas de comparer facilement deux covariances.
+
+--
+
+On utilise donc le **coefficient de corrélation linéaire** de deux caractères `\(x\)` et `\(y\)` qui est égal à la covariance de `\(x\)` et `\(y\)` divisée par le produit des écarts-types `\(\sigma\)` de `\(x\)` et `\(y\)`. Pour des raisons qui ne seront pas détaillées ici, l'écart-type utilisé est celui utilisé pour une population (fonction ecartypep sous Excel). 
+
+.center-img[
+`\(R_{x,y}=\frac{cov_{x,y}}{\sigma_x.\sigma_y}\)`
+]
+
+--
+
+Le coefficient de corrélation est noté `\(R\)`. Comme il est **standardisé**, il varie entre **-1 et +1**
+- &lt;span style="color:#4b8b8b"&gt;si R est proche de `\(-1\)`, il existe une **forte relation linéaire négative** entre `\(x\)` et `\(y\)`&lt;/span&gt;
+- &lt;span style="color:grey"&gt;si R est proche de `\(0\)`, il n'y a pas de relation linéaire entre `\(x\)` et `\(y\)`&lt;/span&gt;
+- &lt;span style="color:#FF6B6B"&gt;si R est proche de `\(+1\)`, il existe une **forte relation linéaire positive** entre `\(x\)` et `\(y\)`&lt;/span&gt;, sa **forme**
+
+Le **signe** de `\(R\)` indique le **sens** de la relation, sa **valeur absolue** **l'intensité** de la relation.
+
+---
+class: animated, fadeIn
+## R de Bravais-Pearson : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On propose d'examiner s'il existe une relation entre la capacité à épeler, mesurer par le QI `\(y\)` et la taille des pieds `\(x\)` de 10 enfants.
+.pull-left1[
+&lt;table class="table table-striped" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Enfant &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 65.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; G &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 90.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; I &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 110.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; J &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38.00 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 150.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; Moyenne &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 34.00 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 76.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; Ect &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 2.32 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 30.43 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right3[
+.center-img[
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-9-1.png" width="60%" /&gt;
+]
+.font90[
+Le nuage de point montre une **relation monotone positive** qui semble **non linéaire**. On décide tout de même de calculer le `\(R\)` de Bravais-Pearson.
+]]
+
+
+---
+class: animated, fadeIn
+## R de Bravais-Pearson : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left1[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Enfant &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; yi &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; xi*yi &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 31*50=1 550 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 705 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 664 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 848 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 079 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 65 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 210 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; G &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 415 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 90 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 240 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; I &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 110 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 4 070 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; J &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 150 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 5 700 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; Moyenne &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 2 648,1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; Ect &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 2,32 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 30,43 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right3[
+La covariance est égale à la moyenne du produit des valeurs de deux variables moins le produit des deux moyennes : 
+
+`\(cov_{x,y} = 2648,1 – (34,76)=64,1\)`
+
+La covariance de `\(x\)` et `\(y\)` est donc égal à **64,1**
+
+On obtient le coefficient de corrélation de Bravais Pearson entre `\(x\)` et de `\(y\)` en divisant la covariance par le produit de l'écart-type de `\(x\)` et de l'écart-type de `\(y\)` : 
+
+.center-img[
+`\(R=\frac{64,1}{2,32.30,43}=+0,9\)`
+]
+]
+
+---
+class: animated, fadeIn
+## R de Bravais-Pearson : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Avec  `\(R = +0,90\)`, la corrélation est **positive et forte**. Cela semble indiquer qu'il existe une relation reliant le quotient intellectuel des enfants et la taille de leurs pieds.
+
+--
+
+Toutefois, le coefficient de corrélation ne nous indique pas :
+- si la relation observée est **significative** (fruit du hasard ou non).
+- si elle correspond à une **relation de cause à effet** entre les deux facteurs `\(x\)` et `\(y\)` étudiés. 
+
+--
+
+De plus, le nuage de point observé ne montre pas un ajustement parfait des points sur une droite, mais plutôt **sur une courbe**. 
+
+On peut donc calculer le **R de Spearman** pour mesurer un éventuel meilleur ajustement **non-linéaire**.
+
+---
+class: animated, fadeIn
+## R de Bravais-Pearson : limites
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+En principe, le coefficient de Bravais-Pearson ne peut s’appliquer que 
+- pour des distributions **gaussiennes**.
+- sans valeurs **exceptionnelles** min ou max (outliers).
+
+--
+
+Il arrive très souvent que ces conditions ne soient pas vérifiées. Elles conduisent alors à des interprétations faussées. C’est pourtant le coefficient le plus largement répandu. 
+
+De plus, ne pas montrer une relation linéaire ne signifie pas l'absence d’une autre relation. Dans l'exemple précédent, le coefficient de corrélation de Bravais-Pearson indiquait un bon ajustement, alors que le nuage de point montre que la relation n'est sans doute pas linéaire.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 3- Le coefficient de corrélation de rang de Spearman
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Le coefficient de corrélation de rang de Spearman
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le coefficient de corrélation de **Spearman** ne se base pas sur les valeurs des individus `\(x_i\)` et `\(y_i\)` mais sur leur **rang** `\(r(x_i)\)` et `\(r(y_i)\)`. 
+
+--
+
+Il permet de déterminer l’existence d’une relation entre le rang des observations pour deux caractères `\(x\)` et `\(y\)`. Cette propriété permet de démontrer l'existence de **relations monotones linéaires ou non**.
+
+On peut donc l'utiliser pour des distributions **non gaussiennes** ou sur des données avec des **valeurs extrêmes**.
+
+--
+
+En contrepartie, il est plus difficile à calculer manuellement, il est moins efficaces sur des rangs ex-æquo et il n'intervient pas dans la modélisation par régression linéaire.
+
+--
+
+.center-img[
+`\(R = 1- {\frac {6 \sum [r(x_i)-r(y_i)]^2}{N^3 - N}}\)`
+]
+
+Avec `\(r(x_i)\)` et `\(r(y_i)\)` le rang de `\(x\)` et `\(y\)` dans la distribution et `\(N\)` le nombre d'individus
+
+
+---
+class: animated, fadeIn
+## R de Spearman : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+&lt;table class="table table-bordered" style="font-size: 14px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Enfant &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Rxi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Ryi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Rxi-Ryi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; (Rxi-Ryi)² &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 65 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; G &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 90 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; I &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; J &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 150 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; Somme &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 340 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 760 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 55.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.00 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+Pour les rangs `\(r(x_i)\)` et `\(r(y_i)\)` ex-æquo, on calcule la moyenne ou la médiane.
+
+- La somme du carré des différences de rang étant égale à **+4**
+- le nombre d'individus étudiés est égal à **10**
+
+On en déduit la valeur du coefficient de corrélation de Spearman :
+.center-img[
+`\(R = 1- {\frac {6.4}{10^3 - 10}} = +0,98\)`
+]
+]
+
+---
+class: animated, fadeIn
+## R de Spearman : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[
+
+La relation mise en évidence avec le coefficient de corrélation de Bravais-Pearson est **confirmée** avec le R de Spearman. 
+
+Elle est cependant **plus forte avec ce dernier**, ce qui peut laisser supposer une **relation non-linéaire** entre `\(x\)` et `\(y\)`.
+
+Le nuage de points confirme cette hypothèse. Cependant, le calcul du coefficient de corrélation n’est pas suffisant. 
+
+Comme pour le `\(\chi2\)`, il faut **tester** la relation afin de déterminer si elle est liée au hasard ou non.
+
+]
+
+.pull-right[
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-12-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Test de la significativité de la corrélation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le test se déroule de la même manière que celui du `\(\chi2\)`
+- On pose H0 : il n'y a pas de relation entre les deux caractères `\(x\)` et `\(y\)`
+- On fixe un risque d'erreur `\(\alpha\)` pour le rejet de H0 (5%)
+- On calcul le degré de liberté `\(z\)`. 
+  - Pour Bravais-Pearson : le nombre de couples Xi,Yi - le nombre de variables explicatives – 1 (sur 10 individus : `\(z=10-1-1=8\)`)
+  - Pour Spearman : le nombre de couples (z=10)
+- On calcule la valeur absolue du coefficient de corrélation R(X,Y) dans la table correspondante (Pearson ou Spearman)
+- On calcule la valeur théorique R(α, z) de ce coefficient
+- Si R théorique &gt; R calculé, l’hypothèse H0 ne peut pas être rejetée. 
+
+Si R théorique &lt; R calculé, l’hypothèse H0 est rejetée au risque `\(\alpha\)`
+
+---
+class: animated, fadeIn
+## Test du R de Bravais-Pearson
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[
+
+Dans notre exemple, il  y a 10 individus :
+- `\(z=10-1-1=8\)`
+- On choisi un risque `\(\alpha\)` de rejeter H0 à tort de 5%
+- La valeur du R de Bravais-Pearson pour `\(z=8\)` et `\(\alpha=0.05\)` est de 0,6319
+- R théorique (0,63) &lt; R calculé (0,90)
+- On peut rejeter H0 et accepter H1 avec un risque de 5% de rejeter H0 à tort.
+- Avec un risque de 2%, la relation est toujours significative (R théorique = 0,7155)
+
+N.B. : la plupart des logiciels de statistiques donnent la p-value 
+
+]
+
+.pull-right[
+&lt;img src="./assets/images/4-corr/table_bp.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Test du R de Spearman
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[
+
+Dans notre exemple, il  y a 10 individus :
+- `\(z=10\)`
+- On choisi un risque α de rejeter H0 à tort de 5%
+- La valeur du R de Bravais-Pearson pour `\(z=10\)` et `\(\alpha=0.05\)` est de 0,56
+- R théorique (0,56) &lt; R calculé (0,98)
+- On peut rejeter H0 et accepter H1 avec un risque de 5% de rejeter H0 à tort.
+- Avec un risque de 1%, la relation est toujours significative (R théorique = 0,75)
+
+]
+
+.pull-right[
+&lt;img src="./assets/images/4-corr/table_spear.PNG" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Vérification des résultats
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[
+
+Vérifiez **toujours** la forme du nuage de points. Des sous ensembles ou des outliers peuvent radicalement changer les résultats.
+
+Vérifiez si les deux R significatifs sont proches :
+- Si R(Pearson) &gt; R(Spearman) = présence de valeurs exceptionnelles ?
+- Si R(Spearman) &gt; R(Pearson) = non-linéarité ?
+
+]
+
+.pull-right[
+.center-img[
+&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-15-1.png" width="65%" /&gt;&lt;img src="L3_Cours_4_corr_files/figure-html/unnamed-chunk-15-2.png" width="65%" /&gt;
+]]
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# Conclusions
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La corrélation est uns outil trè puissant permettant la mise en relation des caractères quantitatifs. Il est néanmoins nécessaire :
+- De prendre du recul par rapport aux données étudiées (Qu’elles sont les données les plus susceptibles d’expliquer un phénomène observé)
+- De faire attention aux éventuels biais de confusion (le % de consommateurs de café est lié au % de cancer des bronches, mais parce que le % de consommateurs de café est aussi lié au % de fumeurs)
+- De poser les hypothèses adéquats avant de lancer vos analyses
+- De vérifier les prérequis à l’utilisation du coefficient de corrélation 
+- De vérifier la forme du nuage de points
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le prochain cours s'intéressera à un autre aspect de la mise en relation des caractères quantitatif : la modélisation
+
+Nous verrons comment expliquer une variable par une autre dans le cadre de la régression linéaire : 
+- Peut-on expliquer le taux d'abstention par l'âge ?
+
+et plus généralement comment expliquer une variable par plusieurs autres avec la régression multiple :
+- Peut-on expliquer le taux d'abstention par l'âge, le niveau de scolarisation, le niveau de revenu ?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

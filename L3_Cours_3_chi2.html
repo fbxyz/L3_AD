@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L3_Cours_3_chi2.knit</title>
+    <meta charset="utf-8" />
+    <script src="assets/kePrint-0.0.1/kePrint.js"></script>
+    <link href="assets/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/theme_flo.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/tools.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: center, middle, inverse, title-slide, animated, fadeIn
+# Analyse de données L3 2021-2022
+# Cours n°3- Mise en relation de deux caractères qualitatifs&lt;br /&gt; &lt;br /&gt;
+### Florian Bayer
+
+&lt;img src="./assets/css/logo_p1_col.jpg" STYLE="position:absolute; BOTTOM:20px; RIGHT:5px; WIDTH:15%;  "/&gt;
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Rappels et objectifs du cours
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Lors du précédent cours, vous avez appris à analyser et décrire une série statistique à l’aide d’outils univariés.
+
+--
+
+En partant du **tableau de contingence**, nous allons voir comment analyser les relations entre deux ou plusieurs séries de données **qualitatives.**
+- Existe-t-il un lien entre le versant d’un massif (N,S,E,O) et le type de culture ?
+- Les accidents aériens (oui/non) sont ils dépendant du type de piste des aéroports (tarmac/herbe/terre) ?
+- La réussite à un concours (oui/non) est elle dépendante de l’enseignant ?
+
+--
+
+Mettre en évidence une relation n'est cependant pas suffisant. Il convient de savoir si le résultat peut être **validé avec certitude** ou non. Nous aborderons donc dans ce cours :
+1. La démarche scientifique
+2. Description d’une relation entre 2 caractères qualitatifs discrets
+3. Test du Chi²
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 1- La démarche scientifique
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Les critères de scientificité
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La théorie scientifique comporte **3 composantes** :
+- Objectivité
+- Reproductibilité
+- Falsifiabilité
+
+--
+
+K.R. Popper pose la question : .font90[*Existe-t-il un critère permettant d'établir la nature ou le statut scientifique d'une théorie ?*]
+
+Il introduit alors le principe de **falsifiabilité** : on ne peut accepter une théorie scientifique que s’il existe un moyen de **prouver qu’elle est erronée**. L’objectif est donc de pouvoir soumettre cette théorie à des expériences (des tests) afin de vérifier si la théorie et l’observé concorde.
+
+--
+
+*«Une théorie qui n'est réfutable par aucun événement qui se puisse concevoir est dépourvue de caractère scientifique. Pour les théories, l'irréfutabilité n'est pas vertu mais défaut »*. **Une théorie irréfutable est alors jugée comme méta-physique.**
+
+*«Le critère de la scientificité d'une théorie réside dans la possibilité de l'invalider, de la réfuter ou encore de la tester »* K.R. Popper, Conjecture et réfutation, Payot, Paris, pp. 58-65.
+
+---
+class: animated, fadeIn
+## La formalisation de la démarche scientifique
+
+.center-img[
+&lt;img src="./assets/images/3-chi2/demarche.png" width="70%" /&gt;
+] 
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Tests de significativité : exemple 1
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Obtenir un résultat (un indicateur d’intensité de relation, une comparaison de deux moyennes) n’est pas suffisant. Il est obligatoire de déterminer si ce résultat est lié au hasard (fluctuations d'échantillonage, pas de relation, biais de sélection, effectifs insuffisants etc.) ou s’il peut être **validé** avec un certaine **marge d’erreur**. On parle de **test de significativité**.
+
+--
+
+Exemple : un article démontre que la part estimée de diabétique dans la population d'un pays est de 20%. Un scientifique décide de vérifier si ce taux est égal à 20% dans sa région. Comme il ne peut pas faire un test sur toute la population régionale, il réalise une étude sur un groupe représentatif (**échantillon**) semblable à celle de l'étude du pays.
+
+--
+
+- Cas 1 : il obtient un  taux de 5%. Dans ce cas il **rejete** son hypothèse du fait de l’écart important entre les deux.
+- Cas 2 : il obtient un taux de 18 %. L’hypothèse peut être jugée raisonnable et **il n’y a pas de raison évidente de la rejeter**.
+
+--
+
+L’intuition qui conduit à cette conclusion doit être **formalisée** en une **règle précise** s’appliquant à chaque cas et en fonction de la taille de la population étudiée : **un test de significativité**.
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Tests de significativité : exemple 2
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Deux équipes de recherche décident de mesurer la relation entre la température et l'altitude. 
+- Par manque de moyen, l'équipe A n'a pu faire **que 5 mesures**, l'équipe B **100 mesures**.
+- Les deux équipes obtiennent le même résultat : tous les 100 mètres, la température baisse environ de 0,6°C (environ car il y a des fluctuation de mesures : parfois de 0,5°, 0,65° etc.)
+
+--
+
+Pourtant, seul le résultat de l'équipe B peut être validé car les mesures de l'équipe A sont insuffisantes et **peuvent être liées au hasard**. Pour compenser ce manque, il faudrait que les mesures réelles de la température baissent exactement (ou quasi) de 0,6° tous les 100 mètres pour l'équipe A. A l'inverse, l'équipe B peut valider son modèle en dépit des éventuelles fluctuations des mesures de la température.
+
+--
+
+Dans cet exemple, c'est l'effectif qui est insuffisant (**manque de puissance**), mais l'intensité de la relation ou la rareté d'un phénomène peuvent également jouer.
+
+---
+class: animated, fadeIn
+## Les lois en statistiques
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour faire un test de significativité, on se base sur des lois statistiques, comme la loi normale (cf. cours sur l'univariée). Le chi² possède sa propre loi. Ces lois permettent de prédire la probabilité qu'un événement théorique aléatoire ou rare survienne.
+
+.center-img[.pull-left[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-3-1.png" width="100%" /&gt;
+]
+
+.pull-right[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Principes d'un test statistique
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour valider **objectivement** le fait que des différences ou des relations ne soient pas liées au hasard, on formalise un test statistique qui suit **toujours les mêmes règles**.
+
+--
+
+.font90[
+1. Formuler une hypothèse nulle et l’hypothèse alternative
+  - On parle généralement **d’hypothèse d’indépendance**, notée **H0** : il n’y a pas de relation entre un caractère X et un caractère Y.
+  - Son alternative, **H1**, qui décrit la situation si H0 est fausse : il y a une relation entre X et Y.   
+2. Calculer une statistique qui **résume la situation observée**
+  - On utilise des outils statistiques comme le coefficient de corrélation ou le calcul du Chi².
+  - Mais on peut aussi comparer deux moyennes.
+  - C'est le **résultat observé**.
+3. Comparer le calcul de l’étape 2 et ce que prévoit **les lois de la statistique** à l’aide d’une règle de décision.
+  - Si le résultat observé se trouve être un élément commun de la loi statistique théorique, on ne pourra pas rejeter H0.
+  - Si le résulta observé est un évènement rare de la loi (par exemple dans les 2.5% de l'exemple précédent), on aura tendance à rejeter H0 et accepter H1.
+]
+
+--
+
+La règle de décision qui nous permet de rejeter ou non H0 est appelée le risque d’erreur `\(\alpha\)` (à partir de quelle écart entre le calculé et l’observé peut-on rejeter H0 ?)
+
+---
+class: animated, fadeIn
+## Le risque d’erreur `\(\alpha\)` 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La règle de décision étant basée sur des observations, elle est sujette à des erreurs. La marge d’erreur est définie par un paramètre `\(\alpha\)` et un paramètre `\(\beta\)` qui ne sera pas abordé.
+
+--
+
+`\(\alpha\)` est aussi appelé erreur de première espèce : rejeter l’hypothèse d’indépendance H0 alors qu’elle est vraie (conclure que le résultat n'est pas lié au hasard alors qu'il l'est). En science sociale, il est commun d'utiliser un `\(\alpha\)` égal à 5%. En rejettant H0 avec un risque `\(\alpha = 0.05\)`, il existe un risque de 5% de rejeter H0 à tort (le résultat observé est bien du hasard).
+- Il s’agit d’une valeur que **vous** devrez toujours déterminer. Il est nécessaire de s’y tenir et de ne pas la modifier au cours du test.
+
+--
+
+Dans l’exemple des diabétiques, on souhaite vérifier s’il y avait une différence entre entre le % de diabétiques au niveau national (20%) et dans la région d’étude.
+- Si H0 est vraie (20% de diabétiques dans la population de la région) avec un risque `\(\alpha =0.05\)`, on admet de se tromper en moyenne 5 fois sur 100 en rejetant H0 alors que H0 est vraie.
+
+--
+
+.font80[*«Il faut retenir que la seule chose qu’on puisse démontrer par des observations, est qu’une hypothèse est fausse. On ne peut pas démontrer qu’elle est vraie. Tout au plus, peut-on dire qu’elle n’est pas contredite par l’expérience» (Popper 1973).*
+]
+
+---
+class: animated, fadeIn
+## Illustration graphique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[.pull-left[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-5-1.png" width="100%" /&gt;
+]]
+.pull-right[.center-img[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-6-1.png" width="100%" /&gt;
+]]
+.font60[On calcule une statistique à partir d'observations, qui nous donne un résulat égal à 18 (une moyenne, un chi² ou tout autre calcul). La table théorique de la loi associée à cette statistique, indique qu'avec α = 0.1, le résultat observé est compris dans la zone de rejet de l'hypothèse H0. On accepte l'hypothèse alternative H1 : la statistique calculée est un évènement rare (en prenant le risque de rejeter à tord H0 1 fois sur 10)
+
+Avec α = 0.05, cette statistique n'est plus comprise dans la zone de rejet de l'hypothèse H0. On ne peut donc pas rejeter H0. L'observation faite n'est pas "rare" avec ce seuil α]
+
+---
+class: animated, fadeIn
+## Formalisation d’un test
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le déroulement d'un test statistique doit se faire rigoureusement. A votre niveau, vous devez obligatoirement formaliser et détailler votre démarche.
+
+--
+
+1. On pose une hypothèse **nulle**  appelée **H0**. Elle suppose l’absence d’effet, On pose hypothèse alternative **H1**. Celle-ci implique un effet, une relation.
+2. On défini le **test adéquat** (Chi², z, etc.), associé à la loi de probabilité de la statistique calculée (loi du Chi², loi normale etc.). A votre niveau, la loi associée vous sera fournie.
+3. On défini le risque d'erreur `\(\alpha\)` de rejeter à tort H0 . 
+4. (On détermine le **degré de liberté**, par les variables et le nombre de leur relations). Le degré de liberté est souvent associé à la taille de l’échantillon. 
+5. On calcule la statistique **observée** de notre test.
+6. On compare  les résultats **observé** VS **théorique** dans une table associée à la loi de probabilité du test. Si *théorique* &gt; *observé*, on ne peut pas rejeter H0. A l'inverse, si **théorique** &lt; **observé**, on peut rejeter H0 et accepter H1 avec un le risque `\(\alpha\)` de rejeter H0 à tort.
+
+---
+class: animated, fadeIn
+## Interprétation d’un test
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il faut être prudent vis-à-vis des termes utilisés. Rejeter H0 avec un risque `\(\alpha\)` de 5% ne veut pas dire que H0 a moins de 5% d’être vraie. 
+
+--
+
+Il n’y a pas de probabilité que H0 soit vraie : **H0 est vrai ou fausse**. On peut en revanche calculer la probabilité de faire telle ou telle observations si H0 est vraie.
+
+--
+
+`\(\alpha\)` est la probabilité de rejeter H0 si H0 est vraie, mais `\(\alpha\)` ne donne pas la probabilité que H0 soit vraie si on rejette H0.
+
+--
+
+Exemple : on propose d’étudier la relation entre chuter d’un avion sans parachute et le décès.
+- La probabilité de décéder en chutant d’un avion en vol sans parachute est très proche de 100%.
+- En revanche, si on trouve une personne décédée, la probabilité qu’elle soit tombée d’un avion en vol sans parachute est sans doute très loin de 100%.
+
+---
+class: animated, fadeIn
+## Exemple du test z 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[.pull-left[
+&lt;img src="./assets/images/3-chi2/z_exemple.png" width="90%" /&gt;
+]]
+
+.pull-right[.font70[
+On souhaite vérifier si la taille moyenne d’un échantillon correspondant à une équipe de basket féminine d’une école est différente de la taille moyenne des filles ne faisant pas d’activité sportive &lt;span style="color: red;"&gt;(165cm, écart-type de 10 cm, n=40)&lt;/span&gt; ou si cette différence est liée au hasard (fluctuation d’échantillonnage). On reporte la moyenne de l’échantillon sur la courbe &lt;span style="color: blue;"&gt;(188cm, écart-type de 9,7 cm, n=30 joueuses)&lt;/span&gt; .
+
+Les courbes montrent la répartition de la taille des deux groupes : beaucoup sont proches de la moyenne, très peu sont très grandes ou très petites. Mais il semble que les basketteuses soient en moyenne plus grandes. 
+]]
+
+.font70[
+1. On pose l’hypothèse H0 : il n’y a pas de différence entre la taille moyenne des basketteuses et la taille moyenne des filles ne faisant pas d’activité sportive dans l’école.
+2. On pose l’hypothèse alternative H1 : il y a une différence entre la taille moyenne des basketteuses et la taille moyenne des filles ne faisant pas d’activité sportive dans l’école.
+3. On fixe un seuil `\(\alpha\)` à 5% (0,05) (on fixe toujours le seuil avant les calculs).
+4. Pour montrer une différence entre deux moyennes observées dont la distribution est normale, on utilise un test `\(Z\)` ou un test de Student. Les effectifs étant suffisant, on peut utiliser une approximation de la loi normale centrée-réduite (test `\(Z\)`). Le calcul de `\(Z\)` (non détaillé ici) donne `\(Z=12.98\)`.
+5. On va comparer cette valeur calculée avec une valeur théorique, prédite par la loi normale. Pour cela, on dispose de table, ici une table de la loi normale centrée réduite.
+]
+
+---
+class: animated, fadeIn
+## Exemple du test z 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+.font80[
+- La table nous donne la probabilité `\(\alpha\)` pour que la valeur `\(Z\)` dépasse en valeur absolue un intervalle (les zones rouges sur le graphique). On obtient la probabilité en additionnant les nombres en marge (0,0+0,05).
+- La table de probabilité nous dit qu’il y a 5% des cas ou `\(Z\)` dépasse 1,96 ($Z$ théorique). 
+- Le `\(Z\)` calculé est égal à 12.98.
+- `\(Z\)` **calculé** &gt; `\(Z\)` **théorique** : la différence n’est pas lié au hasard. On rejette H0 et accepte H1 (la taille moyenne est différente entre les basketteuses et les filles ne faisant pas d’activité sportive), avec un risque de rejeter H0 à tort de 5%. A noter que même à 1% , `\(Z\)` calculé &gt; `\(Z\)` théorique (2,576)
+
+A noter que les calculs sont standardisés, ce qui explique le 0 sur le graphique : la moyenne de référence, soit celle des femmes ne faisant pas de basket. Le 12.98 correspond à la valeur standardisée pour les femmes qui font du basket (le score `\(Z\)`)
+]]
+
+.centre-img[.pull-right[
+&lt;img src="./assets/images/3-chi2/z_table.png" width="100%" /&gt;
+
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-9-1.png" width="90%" /&gt;
+]]
+
+
+---
+class: animated, fadeIn
+## Remarques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+1. La plupart des logiciels de statistiques fournissent une statistique p-value (p) ou degré de signification: plus la valeur est proche de 0, plus H0 peut-être rejetée avec confiance:
+  - une p-value = 0,05 indique qu'on peut rejeter H0 avec 5% de risque d'erreur. 
+  - p = 0,01, 1% de risque d'erreur  
+2. attention à l'erreur écologique : une relation à l'échelle d'une commune ne s'applique pas à tous les individus de cette commune 
+3. attention à l’erreur atomistique : un comportement d’individus s’explique aussi par le contexte dans lequel ils vivent
+
+---
+class: animated, fadeIn
+## Causalité et corrélation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Attention, un lien statistique n’est pas forcément le signe d'une causalité (une interprétation explicative de la corrélation). Elle peut-être liée au hasard :
+
+--
+
+.center-img[
+&lt;img src="./assets/images/3-chi2/nicolas.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Facteur de confusion
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Exemple consommation d’alcool et cancer des bronches.
+- Une étude analyse le rôle de la consommation d’alcool dans le risque d’avoir un cancer des bronches. Elle trouve un lien  :
+
+.center-img[
+&lt;img src="./assets/images/3-chi2/confu_1.png" width="50%" /&gt;
+]
+
+--
+
+En réalité, le risque de développer un cancer des bronches  n’est pas directement lié à la consommation d’alcool, mais au fait que les consommateurs d’alcool ont une probabilité plus forte d’être fumeur. Le tabagisme est ici un **facteur de confusion**.
+
+.center-img[
+&lt;img src="./assets/images/3-chi2/confu_2.png" width="50%" /&gt;
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- Description d’une relation entre des caractères qualitatifs
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Parler de relation en statistique revient à établir un rapport logique entre au moins deux caractères X et Y
+
+L’intensité de la relation peut souvent être mesurée et elle doit toujours être testée statistiquement (ce résultat est-il lié au hasard ?). 
+
+L'idée est de **comparer** une situation **théorique aléatoire et l'observé**. Si l'observé est très proche de la situation aléatoire, on ne peut pas conclure qu'il existe une relation. A l'inverse, si observé et aléatoire sont très différents, on peut se poser la question d'une relation entre X et Y
+]
+
+.pull-right[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-13-1.png" width="68%" /&gt;
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-14-1.png" width="68%" /&gt;
+
+
+]
+
+---
+class: animated, fadeIn
+## Relation entre caractères qualitatifs discrets
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L'un des outils les plus courant pour mesurer la relation entre des caractères qualitatifs discrets est le test du **Chi²**. Il s’applique sur les **tableaux de contingence**.
+
+Le tableau de contingence permet : 
+- d’étudier la répartition des valeurs de X par rapport à Y et des valeurs de Y par rapport à X (profils lignes et profils colonnes).
+- de comparer une **distribution observée** à une **distribution théorique** (indépendante), qui correspond à ce que serait la réalité s’il n’y avait aucune relation entre X et Y (distribution aléatoire entre X et Y).
+
+--
+
+Si l’écart entre l'observé et l’indépendance est faible, il est fort probable qu’il n’y ait pas de relation. En effet, cela revient à considérer que les deux caractères X et Y se comportent indépendamment. A l’inverse, **un fort écart** à l'indépendance peut laisser supposer une relation entre les individus mesurés.
+
+---
+class: animated, fadeIn
+## Exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+36 étudiants d’une promotion sont décrits par un ensemble de variables relatives au sexe, à l'âge et au groupe (il existe deux groupes). On souhaiterait :
+- connaître la répartition des groupes dans l'ensemble de la promotion et par sexe
+- connaître la répartition des sexes dans l’ensemble de la promotion et par groupe
+- savoir si les hommes et les femmes sont répartis de façon aléatoire entre les deux groupes
+
+&lt;br&gt;
+
+--
+
+.pull-left1[
+&lt;table class="table" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Etudiant &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Groupe &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Sexe &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right3[
+La variable Groupe (X) possède deux modalités et la variable Sexe (Y) possède deux modalités . Il existe donc 4 possibilités de croisement : 
+- femme du groupe 1
+- femme du groupe 2
+- homme du groupe 1
+- homme du groupe 2
+]
+
+---
+class: animated, fadeIn
+## Du tableau élémentaire au tableau de contingence
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour répondre à ces questions, le **tableau de contingence** (un tableau dénombrant les modalités croisées des deux caractères X et Y) est un outil adapté. 
+Ce tableau aura : 
+- k lignes (nombre de modalités de X)
+- p colonnes (nombres de modalités de Y)
+
+Des marges seront ajoutées avec :
+- les totaux en lignes (effectif de chaque modalité de X)
+- les totaux en colonnes (effectif de chaque modalité de Y)
+- le total général (nombre n d'individus étudiés)
+
+---
+class: animated, fadeIn
+## Construction du tableau de contingence
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+&lt;br&gt; &lt;br&gt;
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;font-weight: bold;"&gt; 36 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+Ce tableau de contingence permet de dénombrer tous les cas possibles de modalités.
+
+On peut ainsi dire :
+- qu'il y a 14 hommes dans le groupe 1
+- qu'il y a 19 étudiants dans le groupe 2
+- qu'il y a 12 étudiantes
+- ou encore qu'il y a en tout 36 étudiants
+]
+
+--
+
+En revanche ce tableau n'indique que des effectifs bruts.
+- Il  ne permet pas de comparer les proportions des modalités
+- Il ne permet pas de répondre directement à des questions du type **la proportion d'hommes est-elle plus élevée dans le groupe 1 que dans le groupe 2 ? **
+
+On construit donc généralement deux tableaux de profils indiquant les pourcentages en lignes ou les pourcentages en colonnes. 
+
+---
+class: animated, fadeIn
+## Analyse des profils en ligne 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le tableau des **profils en ligne** est construit en divisant l'effectif de chaque case par le total de la ligne correspondante : 
+
+.pull-left[
+&lt;table class="table table-bordered" style="font-size: 13px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij/Ni &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 18% (3/17x100) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 82% (14/17x100) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 100% (17/17x100) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 47% &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 53% &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 100% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 33% &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 67% &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 100% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;br&gt;
+&lt;table class="table table-bordered" style="font-size: 14px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;font-weight: bold;"&gt; 36 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;br&gt;
+.font80[La part de femmes dans l'ensemble de la promotion est de 33% mais elle est sensiblement plus élevée dans le groupe 2 (47%) que dans le groupe 1 (18%)]
+]
+
+.pull-right[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-19-1.png" width="100%" /&gt;
+
+]
+
+---
+class: animated, fadeIn
+## Analyse des profils en colonne 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le tableau des **profils en colonnes** est construit en divisant l'effectif de chaque case par le total de la colonne correspondante : 
+
+.pull-left[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij/Ni &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 25% (3/12x100) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 58% &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 47% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 75% (9/12x100) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 42% &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 53% &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 100% (12/12x100) &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 100% &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 100% &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;br&gt;
+
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;font-weight: bold;"&gt; 36 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;br&gt;
+.font80[
+Le groupe 1 ne totalise que 47% des étudiants de la promotion. Mais on y trouve 58 % de l'ensemble des hommes et seulement 25 % des femmes de l'ensemble de la promotion.]
+
+]
+
+.pull-right[
+
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-22-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Les effectifs théoriques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le tableau de contingence nous permet de **décrire objectivement la répartition** par sexe et par groupe. En revanche, il ne permet pas de déterminer s’il y a une quelconque **relation** entre groupe et sexe (la formation des groupes s’est elle faite indépendamment du sexe ? )
+
+--
+
+L’étude du tableau de contingence peut aussi se faire en comparant les effectifs observés de chacune des cases `\(N_{ij}\)` aux effectifs théoriques des cases `\(N^{*}_{ij}\)` : 
+- Les effectifs qui seraient obtenus s'il n'y avait aucun lien entre les deux modalités X et Y. Autrement dit, si l'attribution de chaque modalité se faisait de façon aléatoire entre X et Y.
+
+--
+
+Pour reconstituer la distribution théorique des k*p cases du tableau de contingence, on va se servir des __marges__ du tableau qui définissent les probabilités conditionnelles qu'un individu reçoive telle modalité de X ou de Y. 
+
+--
+
+Cela signifie que les effectifs théoriques ne correspondent pas à une répartition aléatoire des groupes et des sexes, mais que l'on conserve **l'état** des groupes (17 étudiants dans le groupe 1, 19 dans le 2) et des sexes (12 femmes, 24 hommes). On se base donc sur la réalité (on ne modifie pas aléatoirement le sexe des étudiants) afin de calculer les 4 états possibles s'ils étaient aléatoires (g1♂, g1♀, g2♂, g2♀)
+
+---
+class: animated, fadeIn
+## Calcul des effectifs théoriques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On note : 
+- `\(Ni.\)` : somme de la `\(i^{ème}\)` ligne, c'est-à-dire nombre d'individus ayant comme attribut la `\(i^{ème}\)` modalité de X 
+- `\(Nj.\)` : somme de la `\(j^{ème}\)` colonne, c'est-à-dire nombre d'individus ayant comme attribut la `\(j^{ème}\)` modalité de Y 
+- `\(N..\)` : somme générale du tableau, c'est-à-dire nombre total d'individus étudiés 
+
+--
+
+1. La probabilité qu'un individu reçoive la modalité `\(i\)` de `\(X\)` est égale à `\(\frac{Ni.}{N..}\)` 
+2. La probabilité qu'un individu reçoive la modalité `\(j\)` de `\(Y\)` est égale à `\(\frac{Nj.}{N..}\)` 
+3. L'effectif théorique de la case `\(Nij\)` (noté `\(N*ij\)`) est obtenu en multipliant la probabilité qu'un individu reçoive cette modalité par le nombre d'individu ($N..$). 
+
+
+On aboutit donc à la formule générale du valcul des effectifs théoriques : 
+`\(N^{*}_{ij} = \frac{Ni.*Nj.}{N..}\)`
+
+---
+class: animated, fadeIn
+## Interprétation des effectifs théoriques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Ces effectifs théoriques sont ceux qui seraient obtenus s'il existait une **indépendance parfaite** entre l'attribution des modalités de X et de Y. Autrement dit, si en **gardant la même situation** (effectif des groupes et mêmes étudiants), la formation des groupes avait été faite **au hasard**.
+
+--
+
+Il peut évidemment exister des **écarts** entre la distribution théorique et la distribution observée. Soit en raison :
+- de fluctuations aléatoires
+- soit en raison de l'existence d'une dépendance entre les deux caractères X et Y (les groupes n'ont pas été formé au hasard, mais selon une logique qui pour le moment nous est inconnue : on peut montrer la corrélation avec les statistiques, mais la causalité devra être recherchée auprès de la personne qui a fait les groupes)
+
+---
+class: animated, fadeIn
+## Effectifs théoriques : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; N*ij &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 5.7 (17*12/36) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 11.3 (17*24/36) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 6.3 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 12.7 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 36 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;background-color: white !important;font-weight: bold;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;font-weight: bold;"&gt; 36 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+&lt;br&gt;
+
+Ce tableau nous indique, que si l'affectation des étudiants à un groupe s'était effectuée indépendamment de leur sexe, il aurait du y avoir 5 ou 6 filles dans le groupe 1 (valeur théorique = 5.7) et non pas 3 comme on l'observe dans la distribution réelle. 
+
+On observe bien que pour calculer les effectifs théoriques, on garde **l'état** des groupes et des sexes (les marges) : on reste dans la même situation marginale (mêmes effectifs totaux pour chaque situation possible entre `\(Nij\)` et `\(N^{*}ij\)`), mais on redistribue aléatoirement à l'intérieur des cases de `\(N^{*}ij\)`.
+
+---
+class: animated, fadeIn
+## Ecarts à l'indépendance
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L'intérêt de cette approche et de comparer la répartition des groupes **observée** à la répartition **théorique ou indépendante**. On parle d'**écart à l'indépendance**.
+
+Pour cela, on soustrait pour chaque case l'effectif observé - la valeur théorique (le réel par rapport à l'aléatoire).
+
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij - N*ij &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; -2.7 (3-5.7) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; +2.7 (11.3-14) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; +2.7 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; -2.7 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;br&gt;
+
+Ce tableau nous indique qu'il existe une **surreprésentation** des femmes dans le groupe 2 (+2.7) et donc des hommes dans le groupe 1 (+2.7). Inversement, les femmes sont **sous-représentées** dans le groupe 1 et les hommes sous-représentés dans le groupe 2 (-2.7).
+
+---
+class: animated, fadeIn
+## Tests des écarts à l'indépendance
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Sachant qu'une distribution empirique ne peut jamais coïncider exactement avec une distribution théorique aléatoire, la question qui se pose est de savoir si les écarts observés sont : 
+- l'effet du hasard
+- s'ils sont les révélateurs d'une relation significative entre les deux variables X et Y 
+
+Le test du Chi² est l'outil idéal pour répondre à cette question.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 3- Test du Chi²
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les calculs précédents permettent de mettre en **évidence des différences**, mais ils ne permettent pas de déterminer si ces différences sont liées au hasard ou si elles sont le signe d’une relation entre X et Y. Dans notre exemple, les groupes ont-ils été formés aux hasard ou suivent-ils une certaine logique ?
+
+--
+
+Pour cela, on utilise le test du Chi-2 (Khi², Chi², KHI-2, `\(\chi^{2}\)`), dont les objectifs sont  : 
+
+- de quantifier la somme des déviations (écarts) entre effectifs observées et effectifs théoriques qui sont présentes à l'intérieur d'un tableau de contingence à l'aide **d'une quantité unique** (et non pas case par case).
+- De comparer la valeur de cette statistique à sa probabilité d'apparition dans le cas d'une série de tirages aux sorts effectués de façon aléatoire.
+- De tenir compte de la taille du tableau (nombre de degrés de liberté). 
+
+---
+class: animated, fadeIn
+## Détermination du `\(\chi^{2}\)` observé
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour éliminer le signe des écarts à l'indépendance et prendre en compte la taille des effectifs des lignes et colonnes, on calcule pour chaque cellule une mesure d'écart à l'indépendance qui est une quantité toujours positive. 
+
+--
+
+Cette quantité appelée Chi-2 local est égale, pour chaque case, au carré de l'écart entre valeur observée et valeur théorique, divisé par la valeur théorique. `\(\chi^{2}_{ij} = \frac{(N_{ij} - N^{*}_{ij})^2}{N^{*}_{ij}}\)`
+
+--
+
+Il s'agit donc d'un **écart relatif** qui prend en compte le fait qu'un écart de +3 n'a pas le même sens entre 2 et 5 qu'entre 102 et 105 : le `\(\chi^{2}\)` donne plus de poids aux écarts entre les petites valeurs qu'entre les plus grandes valeurs.
+
+--
+
+Plus le Chi-2 local d'une case est **élevé**, plus la **déviation** entre valeurs observées et valeurs estimées est **significative** sur le plan statistique (c'est-à-dire plus elle correspond à un événement rare ayant peu de chance de se produire si les variables X et Y étaient indépendantes). 
+
+---
+
+## Calcul du `\(\chi^{2}\)`  observé
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On résume ensuite la quantité globale de déviation présente à l'intérieur du tableau en calculant la valeur `\(\chi^{2}\)` observé qui est la somme de tous les `\(\chi^{2}\)` locaux des cases du tableau (1.255+0.628+1.129+0.561 = 3.567). 
+
+.pull-left[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Chi² ij &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 1.255 (-2.7²/5.7) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 0.628 (2.7²/11.3) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; . &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 1.129 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; 0.561 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; . &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; . &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; . &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 3.567 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;table class="table table-bordered" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nij - N*ij &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Femme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Homme &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Total &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 1 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; -2.7 (3-5.7) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; +2.7 (11.3-14) &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Groupe 2 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; +2.7 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;"&gt; -2.7 &lt;/td&gt;
+   &lt;td style="text-align:left;background-color: white !important;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;color: #18447a !important;background-color: #eeeeee !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;font-weight: bold;font-weight: bold;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+---
+class: animated, fadeIn
+## Interprétations 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le `\(\chi^{2}\)` local le plus important concerne la sous-représentation des femmes dans le groupe 1 (1.255). Cela signifie que **l'écart entre l'observé et le théorique aléatoire**, en **prenant en compte les effectifs**, est plus important pour les femmes du groupe 1. En regardant cet écart non pondéré (observé-théorique), on constate qu'on attendait 5.7 femmes dans ce groupe, alors que "seules" 3 sont présentes. 
+
+--
+
+Un autre `\(\chi^{2}\)` local important est celui des femmes du groupes 2, qui sont plus nombreuses que ce que prévoit la distribution théorique (6.3 attendues contre 9 observées). 
+
+Cela illustre bien l'un des intérêts du `\(\chi^{2}\)` : même si les écarts entre l'observé et le théorique sont symétriques (+/- 2.7), le fait d'avoir des ordres de grandeurs différents (groupes et sexes) est pris en compte dans le calcul.
+
+---
+class: animated, fadeIn
+## Interprétations
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les `\(\chi^{2}\)` locaux sont donc très pratiques pour déterminer où se trouvent les écarts à l'indépendance les plus "anormaux". Pour vous aider à les identifier, vous pouvez calculer la part qu'ils représentent dans le `\(\chi^{2}\)` total : les part les plus importantes sont les plus intéressantes à observer (g1♀ = 1.255/3.567 *100 = 35%).
+
+--
+
+Il convient maintenant de déterminer si ses observations sont dues au hasard ou si elles traduisent une relation dans la formation des groupes. Pour cela, on utilise la somme des `\(\chi^{2}\)` locaux, le `\(\chi^{2}\)` **total**, afin de réaliser un test statistique du `\(\chi^{2}\)`
+
+---
+class: animated, fadeIn
+## Test du `\(\chi^{2}\)` : degré de liberté
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[.font80[
+La première chose à faire avant de réaliser le test est de déterminer le nombre `\(Z\)` de degrés de liberté qui dépend du nombre de lignes et de colonnes du tableau de contingence. Ce nombre `\(Z\)` n'a rien en commun avec le test `\(Z\)` présenté en début de cours.
+
+Il correspond au nombre de cases pouvant produire des déviations indépendantes les unes des autres.
+
+Dans le cas d'un tableau de contingence à 2 lignes et 2 colonnes, ce nombre de degrés de liberté est égal à 1 puisque, la somme des déviations marginales devant être égale à zéro, il suffit de connaître la déviation d'une case pour trouver par différence les déviations de toutes les autres. 
+
+D'une manière plus générale, le **nombre de degrés de liberté** pour le Chi² est égal aux **nombre de colonnes moins une multiplié par le nombre de lignes moins une**, soit :  `\(Z = (k-1) * (p-1)\)`
+]]
+
+.pull-right[
+
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-28-1.png" width="100%" /&gt;
+
+
+]
+
+---
+class: animated, fadeIn
+## Déroulement du test d'indépendance du `\(\chi^{2}\)` 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Le but du test est de déterminer si la valeur observée du `\(\chi^{2}\)` correspond à :
+
+- un événement fréquent ou lié au hasard (en quel cas on ne peut rejeter l'hypothèse d'indépendance)
+- un événement rare (en quel cas on peut rejeter l'hypothèse d'indépendance). 
+
+--
+
+1. On pose l'hypothèse H0 : "Il n'y a pas de relation entre les caractères X et Y". 
+2. On détermine la valeur Chi-2Obs du tableau étudié. 
+3. On détermine le nombre de degrés de liberté z du tableau étudié. 
+4. On fixe le risque d'erreur alpha de rejeter H0 à tort (ex. alpha=5%). 
+5. On détermine la valeur Chi-2(z,alpha) qui est la valeur de Chi-2 d'un tableau de contingence à z degrés de liberté qui ne serait dépassé que dans alpha % des cas si les variables X et Y étaient indépendantes. Cette valeur est lue dans une table du test du Chi-2 que l'on peut trouver en annexe de tous les manuels de statistique 
+6. On procède au test : H0 est vraie si :  Chi-2Obs est inférieur ou égal à Chi-2(z,alpha) 
+7. Suivant le résultat du test, on accepte H0 sans pouvoir accepter H1 ou bien l'on rejette H0 et l'on accepte l'hypothèse inverse H1 ("il y a une relation de dépendance entre X et Y") avec un risque d'erreur de alpha%
+
+---
+class: animated, fadeIn
+## Table du `\(\chi^{2}\)` et explications
+&lt;div class="my-footer"&gt;&lt;s pan&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Pour réaliser un test du `\(\chi^{2}\)`, il faut une table de la distribution théorique du `\(\chi^{2}\)`. Elle se trouve facilement sur internet ou dans les ouvrages de statistiques. Toutes les tables théorique du `\(\chi^{2}\)` sont les mêmes.
+
+On détermine :
+- `\(Z\)` qui est égale au degré de liberté
+- `\(\alpha\)` qui est égale au risque d’erreur alpha
+
+On lit la table de la façon suivante :
+- Pour un degré de liberté `\(Z\)`=9 et un risque d’erreur alpha égale à 5%, le `\(\chi^{2}\)` théorique est égale à 16,92
+
+Cela signifie que pour 9 degrés de liberté, le `\(\chi^{2}\)` observé sera supérieur à 16,92 dans 5% des cas, à 21,67 dans 1% des cas
+]
+
+.pull-right[
+&lt;img src="./assets/images/3-chi2/chi_table.png" width="65%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Table du `\(\chi^{2}\)` - exemple
+&lt;div class="my-footer"&gt;&lt;s pan&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+Test d'indépendance des variables groupe et sexe des étudiants 
+
+Si l'on se fixe un risque d'erreur `\(\alpha=0.1%\)` &lt;span style="color:red"&gt;(10%)&lt;/span&gt;, la valeur théorique du `\(\chi^{2}\)` correspondant à &lt;span style="color:darkgreen"&gt;1 degré de liberté&lt;/span&gt; est `\(\chi^{2}(1,0.1)= 2.7055\)`. 
+
+La valeur du `\(\chi^{2}\)` observée est **supérieure** à cette valeur théorique (3.57&gt;2,7055), on peut rejeter H0 et affirmer avec un risque d'erreur de 10% que les groupes et les sexes ne sont pas distribués au hasard l'un par rapport à l'autre (OBS &gt; THEO)
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/3-chi2/chi_table_test1.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Table du `\(\chi^{2}\)` - exemple
+&lt;div class="my-footer"&gt;&lt;s pan&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+Test d'indépendance des variables groupe et sexe des étudiants 
+
+Si l'on se fixe un risque d'erreur plus faible, `\(\alpha=0.05%\)` &lt;span style="color:red"&gt;(5%)&lt;/span&gt;, la valeur théorique du `\(\chi^{2}\)` correspondant à &lt;span style="color:darkgreen"&gt;1 degré de liberté &lt;/span&gt; est `\(\chi^{2}(1,0.1)= 3.8145\)`. 
+
+La valeur du `\(\chi^{2}\)` observée est **inférieure** à cette valeur théorique (3.57&lt;3,8415), et l'on ne peut plus rejeter H0. On conclue alors qu'il n'est pas possible d'affirmer qu'il existe une relation entre les deux caractères X et Y, sauf à admettre un risque d'erreur supérieur à 5%.
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/3-chi2/chi_table_test2.png" width="100%" /&gt;
+]]
+
+
+---
+class: animated, fadeIn
+## Illustration graphique
+&lt;div class="my-footer"&gt;&lt;s pan&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-32-1.png" width="100%" /&gt;
+Pour `\(Z=1\)`, la valeur du `\(\chi^{2}\)` théorique sera supérieure à 2.7055 dans 10% des cas. Le `\(\chi^{2}\)` observé (3.57) est bien compris dans la zone puisque supérieur à 2.7055
+]
+
+.pull-right[
+&lt;img src="L3_Cours_3_chi2_files/figure-html/unnamed-chunk-33-1.png" width="100%" /&gt;
+Pour `\(Z=1\)`, l la valeur du `\(\chi^{2}\)` sera supérieure à 3.8415 dans 5% des cas. Le `\(\chi^{2}\)` observé est en dehors de cette zone.
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# Conclusions
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Règles d'applications
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Relativement simple à mettre en œuvre, le test du `\(\chi^{2}\)` ne peut cependant être utilisé pour tester l'indépendance de deux caractères X et Y que si certaines conditions très précises sont remplies. Les trois principales sont les suivantes : 
+
+- l’effectif total du tableau de contingence `\(N..\)` doit être supérieur ou égal à 20 
+- l'effectif marginal du tableau de contingence `\(Ni.\)` ou `\(N.j\)` doit toujours être supérieur ou égal à 5. 
+- l'effectif théorique `\(N^{*}_{ij}\)` des cases du tableau de contingence doit être supérieur à 5 dans 80% des cases du tableau de contingence.
+
+Si une des conditions n’est pas remplie, il faut faire des regroupement ou faire un test du Fischer exact.
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+- La démarche scientifique repose sur l'émission d'hypothèse, qu'il faut tester statistiquement.
+- Une théorie irréfutable n'est pas scientifique.
+- Pour évaluer la relation entre deux variables discrêtes, on utilise le tableau de contingence.
+- Evaluer par l'observation une relation n'est pas suffisant, il faut déterminer si elle est "réelle" (avec une certaine marge d'erreur) ou si elle est liée au hasard.
+- De manière générale, on teste en comparant l'observé par rapport à une situation aléatoire. Si les deux sont proches, on en conclut qu'il n'y a pas de relation. Si les deux sont différents, on peut en conclure, avec une marge d'erreur `\(\alpha\)` qu'il existe une relation.
+-  `\(\alpha\)` détermine l'écart entre l'observé et le théorique. Il est défini par le scientifique.
+- Le test du `\(\chi^{2}\)` est utile si vous voulez tester l'association entre deux variables sur un tableau de contingence.
+- Ce test permet de prendre en compte qu'un écart n'a pas la même signification en fonction du contexte (écart de 5 sur un effectif de 10 vs. écart de 5 sur un effectif de 1000).
+- A noter qu'il existe des statistiques, comme le `\(V\)` de Cramer, qui permettent de mesurer l'intensité de l'association entre les deux variables discrêtes.
+
+---
+class: animated, fadeIn
+## Conclusion
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Conclure qu’une relation existe (ou non) n’est jamais une fin en soit. Il faut évidemment comprendre et tenter d’expliquer cette relation :
+
+- Les accidents aériens (oui/non) sont ils dépendant du type de piste des aéroports (tarmac/herbe/terre) ? Il peut également y avoir un lien avec la formation des pilotes, le type d’appareil etc.
+- La réussite à un concours (oui/non) est elle dépendante de l’enseignant ? Les groupes n’ont peut-être pas été formés au hasard.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

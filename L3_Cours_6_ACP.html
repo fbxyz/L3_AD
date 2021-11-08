@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L3_Cours_6_ACP.knit</title>
+    <meta charset="utf-8" />
+    <script src="assets/kePrint-0.0.1/kePrint.js"></script>
+    <link href="assets/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/theme_flo.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/tools.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+class: center, middle, inverse, title-slide, animated, fadeIn
+# Analyse de données L3 2021-2022
+# Cours n°6- L’analyse en composante principale&lt;br /&gt; &lt;br /&gt;
+### Florian Bayer
+
+&lt;img src="./assets/css/logo_p1_col.jpg" STYLE="position:absolute; BOTTOM:20px; RIGHT:5px; WIDTH:15%;  "/&gt;
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Rappels et objectifs du cours
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les outils statistiques permettent d’analyser et de simplifier de manière pertinente d’importantes masses de données :
+
+--
+
+- L’analyse univariées pour **résumer** efficacement un tableau élémentaire de données.
+- La cartographie, qui informe sur **l’organisation spatiale** de ces données.
+- L’analyse bivariée et la régression multiple pour **mesurer modéliser et expliquer l'association** entre des variables. Elles sous entendent néanmoins de poser des hypothèses fortes sur le sens de la relation et ne permettent pas toujours d’appréhender la **complexité des relations** (colinéarité en régression multiple).
+
+--
+
+Il existe des outils permettant de **décorréler**,  **réorganiser** et **hiérarchiser** l’information : **les analyses factorielles**. En contrepartie, il s’agit uniquement de méthodes **descriptives** et non plus explicatives.
+
+---
+class: animated, fadeIn
+## L'information statistique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Lors de ce cours, le terme **information** va être régulièrement utilisé. Il s'agit ici des informations statistiques contenues dans votre tableau de données, au sens large : 
+
+--
+
+- Les phénomènes (réels) qui sont contenus dans vos données
+- et plus particulièrement dans les interrelations entre vos données (votes FN et défaveur sociale, espaces urbains vs ruraux, richesse dans les grandes villes etc.)
+
+--
+
+Ces informations sont très souvent redondantes entre les variables (colinéaires) et posent des problèmes d'interprétations. L'idée de l'analyse factorielle est de rendre chaque *information* indépendante de l'autre. 
+
+--
+
+Reste alors à **comprendre** à quoi correspond concrêtement cette information.
+
+--
+
+A noter que l'*information* peut-être mesurée à l'aide de la variance.
+
+---
+class: animated, fadeIn
+## Applications
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les analyses factorielles permettent de **recombiner** les variables d'un tableau en **nouveaux indicateurs** appelés facteurs. Ils peuvent servir à résumer ou à mieux comprendre des informations complexes souvent colinéaires 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/principes.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Principes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Jusqu'ici, vous pouviez analyser les relations entre les variables, mais uniquement deux à deux à l'aide de l'analyse bivariée. Mais cela ne permet pas de synthétiser un phénomène plus complexe, un tableau de données avec de nombreux caractères.
+
+--
+
+L’analyse factorielle permet ceci en **combinant les variables**. Elle n’est que le passage de l'ajustement linéaire entre deux variables à une ajustement entre plusieurs variables :
+- On analyse **toutes les variables** du tableau de données en même temps.
+- On souhaite déterminer comment varient **simultanément** toutes les variables.
+- En prenant **tous les caractères de tous les individus**.
+
+--
+
+Pour cela on cherche à **résumer** à l'aide de **droites** l'information de notre nuage de points (à n dimensions).
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 1- Principes
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Principes de l’ACP
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+**L’analyse en composante principale (ACP)** utilise  les corrélations entre les variables **quantitatives**, non plus pour expliquer mais pour **décrire et résumer** l'information contenue par l’**ensemble** de ces variables.
+
+--
+
+Son but est de **transformer** des variables redondantes (cf. colinéarité de la régression multiple) entre elles en **nouvelles variables indépendantes** les unes des autres (décoréllées).
+
+--
+
+On appellera les nouvelles variables créées par l’ACP des **facteurs, axes ou composantes principales**.
+
+--
+
+Ces facteurs sont autant de **nouvelles variables synthétiques et décoréllées**, construites à partir du tableau initiale de données.
+
+---
+class: animated, fadeIn
+## Principes de l’ACP
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les analyses factorielles peuvent être abordées de deux manières:
+
+--
+
+- une première basée sur la **statistique** : reconfiguration des données initiales en axes indépendants, décoréllées et expliquant au mieux la variance des données.
+- Une seconde basée sur la **géométrie** : représentation des variables dans un nouvel plan géométrique, puisque l’on recompose les données de manière optimale, selon des axes d’inertie maximale (facteurs).
+
+
+---
+class: animated, fadeIn
+## Contexte
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Avec les analyses factorielles, on cherche à **résumer** au mieux le nuage de points à l'aide de droites du type&lt;span style="color:#619cff"&gt; `\(ax+by+c=0\)` &lt;/span&gt;. Elles sont différentes de la droite&lt;span style="color:#f8766d"&gt; `\(y=ax+b\)` &lt;/span&gt;utilisée en régression et qui minimise les résidus en `\(y\)` (ou &lt;span style="color:#00ba38"&gt; `\(x=ay+b\)` &lt;/span&gt;qui minimise en `\(x\)`)
+
+
+
+--
+
+.pull-left[
+&lt;img src="L3_Cours_6_ACP_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
+]
+
+.pull-right[
+&lt;img src="L3_Cours_6_ACP_files/figure-html/unnamed-chunk-5-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Approche géométrique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font80[
+.pull-left[
+Avec l’ACP et comme pour la régression multiple, on obtient un nuage de point qui possède **autant de dimensions que de variables**. 
+
+Ce nuage ne peut être représenté graphiquement au-delà de 3 dimensions. Il aura une forme privilégiée (allongement-variance) et peut être analysé : **le plus grand axe d’allongement** résumera **le plus d’information** (variance), le second un peu moins etc.
+
+Dans le cas à deux dimensions (2 variables quantitatives dans notre tableau élémentaire de données), le plus grand axe en &lt;span style="color:#bd0026"&gt;rouge&lt;/span&gt; **résume le plus d’information**, le second en &lt;span style="color:#558ed5"&gt;bleu&lt;/span&gt; un peu moins. Pris deux à deux, ils résument **100% de l’information** (variance) du nuage de point. Ils sont **perpendiculaires** entre eux (signe qu'ils sont indépendants, c.a.d. non corrélés).
+
+L’intérêt de l’analyse factorielle est **d’interpréter le résumé** de chaque axe.
+]]
+
+.center-img[
+.pull-right[
+&lt;img src="./assets/images/6-acp/pearson.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Approche géométrique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/acp_poisson.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Approche statistique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Comme un ajustement linéaire, le nouvel axe (ou facteur) consiste en une **combinaison linéaire des variables initiales**. Par exemple :
+
+--
+
+`\(F1 = (0,56 * Pop99) +(-0,34 * IDH) + (0,31 * Dens99)\)`
+`\(F2 = (0,01 * Pop99) + (0,1 * IDH) + (0,9 * Dens99)\)`
+`\(F3 = (0,1 * Pop99) + (-0,15 * IDH) + (-0,2 * Dens99)\)`
+
+--
+
+Cela revient à déterminer de **nouvelles variables**, qui **résument** au mieux les variables initiales.
+
+Mais chaque facteur résume **une information différente**, car ils sont décorrellés.
+
+--
+
+Au final, il y aura toujours **autant d’information**, mais elle sera réorganisée en fonction des corrélations entre les variables (en fonction des facteurs et non plus des variables initiales).
+
+
+---
+class: animated, fadeIn
+## En bref
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font90[
+**L’Analyse en Composante Principale** est une analyse multivariée qui fait partie des analyses dites **factorielles.** Elle a pour but de :
+- résumer un tableau d’information .
+- Au sein de **facteurs** qui correspondent à la combinaison **linéaire** des variables initiales, hiérarchisées et indépendantes les unes des autres.
+- Pour cela, cet outil s’appuie sur la notion d'interrelation entre les variables.
+]
+
+--
+
+.font90[
+Les **informations** contenues dans le tableau élémentaire de données sont ainsi **réorganisées** selon des axes d’études : 
+- l'information n'est plus disponible variable par variable 
+- mais par des combinaisons de variables sous forme de facteurs, qui peuvent correspondre  à des phénomènes plus globaux.
+- Par exemple, un facteur pourra décrire la pauvreté en corrélant des informations sur le taux d’alphabétisation, l’espérance de vie et l’accès au soin.
+- L’information pauvreté sera représenté sur un seul axe (facteur) au lieu de 3 variables étudiées séparément.
+- un second facteur correspondra à l'information : densité de population et mode de vie urbains `\(v.s\)`. rural 
+
+Cette réorganisation des données permet de supprimer certaines **redondances** entre les variables.
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- Méthodologie de l’ACP
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Pour illustrer ce cours, nous chercherons à **réorganiser** une tableau élémentaire de données sur les pays Africains, comprenant des informations sur :
+- la densité de la population
+- le niveau d’éducation
+- le niveau de développement (PNB/PIB)
+- l’espérance de vie
+- la natalité
+- l’âge de la population
+]
+
+.center-img[
+.pull-right[
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:400px; "&gt;&lt;table class="table table-striped" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; nom &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; id &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; Code &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; DEN99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; URB00 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; AGR00 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; JEU99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; VIE99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; TMI99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; EVH99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; EVF99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; PNB97 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; PIB99 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; ALP95 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; SCO95 &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; ISF99 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tanzanie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 201 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tanza &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 210 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 553 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Djibouti &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 202 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Djibo &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 79 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 115 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 350 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 952 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Éthiopie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 203 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Éthio &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 54 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 82 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 128 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 591 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Égypte &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 204 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Égypt &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 64 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4254 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Soudan &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 205 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Souda &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 61 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 290 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 401 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Angola &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 206 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Angol &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 72 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 125 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 260 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 816 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Malawi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 207 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Malaw &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 85 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 137 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 210 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mozambique &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 208 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Mozam &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 81 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 134 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 140 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 225 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Zambie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 209 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Zambi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 109 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 370 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 773 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 78 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Zimbabwe &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 210 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Zimba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 720 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1893 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 85 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Afrique du Sud &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 211 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AfriS &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3210 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4284 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 82 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 81 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Botswana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 212 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Botsw &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3310 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5933 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 71 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Namibie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 213 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Namib &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5300 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Madagascar &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 214 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Madag &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 96 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 250 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 785 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Algérie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 216 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Algér &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 59 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2948 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 62 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Libye &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 217 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Libye &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 88 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 77 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4880 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 90 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Maroc &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 218 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Maroc &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 34 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 71 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1260 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3613 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mauritanie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 219 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Mauri &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 58 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 92 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 440 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1038 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tunisie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 220 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tunis &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 58 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5253 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Burkina Faso &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 221 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Burki &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 92 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 94 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 250 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 552 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mali &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 222 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Mali &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 81 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 123 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 260 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 527 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Niger &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 223 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Niger &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 88 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 123 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 530 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tchad &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 224 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Tchad &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 75 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 230 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 584 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gambie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 225 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Gambi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 118 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 79 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 130 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 340 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 692 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Guinée &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 226 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Guiné &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 134 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 550 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 933 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Guinée-Bissau &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 227 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; GuinéB &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 136 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 230 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 833 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 29 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sénégal &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 229 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Sénég &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 54 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 540 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1576 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sierra Leone &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 230 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Sierr &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 62 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 136 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 160 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 472 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 31 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Bénin &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 231 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bénin &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 54 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 94 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 380 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1403 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 37 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Côte d'Ivoire &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 232 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Côte &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 98 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 710 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1532 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ghana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 233 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Ghana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 82 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 57 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 57 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 61 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 390 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1685 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 65 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Nigeria &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 234 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Niger &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 123 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 280 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1268 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 57 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Togo &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 235 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Togo &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 79 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 340 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 667 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cameroun &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 236 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Camer &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 59 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 77 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 620 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1703 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Centrafricaine (République) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 237 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Centr &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 97 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 320 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 618 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Congo &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 238 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Congo &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 107 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 670 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 75 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gabon &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 239 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Gabon &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 87 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 54 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4120 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6750 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Guinée équatoriale &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 240 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Guiné &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 117 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1060 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4091 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 79 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 64 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Congo. (Rép.dém.du. ex-Zaïre) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 241 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; CongoZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 22 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 63 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 106 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 51 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 110 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 531 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 77 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Burundi &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 242 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Burun &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 204 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 90 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 105 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 140 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 509 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 35 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 23 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kenya &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 243 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Kenya &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 75 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 340 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1306 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 78 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ouganda &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 244 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Ougan &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 95 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 81 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 330 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1136 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 62 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.9 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+]]
+
+---
+class: animated, fadeIn
+## Les données
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+- L’ACP se réalise sur un tableau élémentaire de données et des données quantitatives de stock ou de taux.
+- Il est quasiment obligatoire de réaliser des ACP dites **normées**, c'est à dire que les données sont **centrées-réduites**: exprimées en écart à la moyenne. Cela permet d'analyser des données avec des **unités différentes**.
+- Pour des données qualitatives et les tableaux de dénombrement, on utilisera l’analyse factorielle des correspondances (AFC).
+- Pour une analyse factorielle mélangeant données qualitatives et quantitatives, on utilisera l’analyse en composante multiple (ACM).
+
+--
+
+Les interprétations de l'ACP, AFC et ACM sont très proches. Si vous savez interpréter une ACP, vous n'aurez pas de difficultés avec les deux autres méthodes.
+
+---
+class: animated, fadeIn
+## Entrée par les variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L’ACP va privilégier **l’entrée par les variables** et non par les individus géographiques. Cela permet de réorganiser l’information et la hiérarchiser, tout en rendant compte de la complexité des phénomènes géographiques.
+
+--
+
+En contrepartie, ce n’est qu’une **méthode descriptive et non explicative**, qui n’impose pas de composante géographique : chaque variable est traitée indépendamment des relations entre les individus géographiques (pas d’autocorrélation spatiale). L’aspect géographique passe donc souvent au second plan et le résultat n’aboutit pas toujours à une **régionalisation** des phénomènes étudiés.
+
+--
+
+.center-img[
+&lt;img src="./assets/images/6-acp/variables.png" width="60%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Transformations du tableau élémentaire
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L’ACP va conduire à 2 changements du tableau d’information géographique de départ.
+Premièrement, le passage des variables de taux à des variables **centrée-réduites** (elles sont toutes mesurées en nombre d’écart types au-dessus ou en-dessous de la moyenne). 
+
+On garde ainsi la **structure** de la table mais on perd les ordres de grandeurs. 
+
+La plupart des logiciels de statistiques vous proposent cette opération : **ACP normée**.
+
+.center-img[
+&lt;img src="./assets/images/6-acp/cr.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Transformations du tableau élémentaire
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Deuxièmement, le passage des variables centrée-réduites aux facteurs notés `\(F_x\)`. Ces facteurs s'analysent sur les individus (les pays) **et** les variables.
+
+La plupart des logiciels de statistiques se chargent de cette transformation, qui ne sera pas abordée dans ce cours.
+
+.center-img[
+&lt;img src="./assets/images/6-acp/facteurs.png" width="80%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Les sorties d’une ACP
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les outils permettant de réaliser une ACP proposent des sorties statistiques standards :
+- Les **facteurs** (axes/composantes principales) : la combinaison linéaires des nouveaux indicateurs.
+- Des mesures de la **variance** de chaque facteur : la part d’information contenue dans ces facteurs.
+- Les **coordonnées des variables** : pour interpréter chaque facteur.
+- Les **coordonnées des individus** : pour cartographier la valeur de chaque individus sur chaque facteur.
+- Les **contributions** sur les variables et les individus : quelles variables et quels individus participent le plus à la construction du facteur (%) ?
+- Les **qualités de représentation** des variables et individus : la part de l'information de la variable expliquée par l'axe.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 3- Les facteurs et leurs propriétés
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Définition
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+- Un facteur est une **combinaison linéaire unique et hiérarchisée de l’ensemble des variables** de départ du tableau de données. 
+- Chaque variable est **corrélée** au facteur et ce de façon **différentes suivant les facteurs**.
+- Il y a autant de facteurs que de variables dans le tableau élémentaire de données.
+- On les note `\(F_n\)` ou `\(_n\)` est égal au rang du facteur. 
+- Le numéro du facteur renseigne donc sur l’ordre **entre** les facteurs : la combinaison linéaire qui définit le premier facteur résume plus d’informations que celle qui définit le deuxième facteur etc.
+- Chaque facteur est **indépendant** des autres : ce qui signifie que chaque combinaison linéaire est différente et que d’un point de vue géométrique l’indépendance des facteurs se traduit par le fait qu’ils sont perpendiculaires 2 à 2.
+
+Si F1 porte 60% de l’information initiale, 40% sont traités dans les autres facteurs. F2 portera moins d’information que F1 mais portera une partie de l’information non traitée par F1.
+
+---
+class: animated, fadeIn
+## Valeur propre
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+- Les facteurs s'interprêtent à l'aide de leur **valeur propre**, la part d'information (variance) résumé par le facteur dans le nuage de point.
+- Plus la valeur propre est grande, plus l'information résumée est importante (variance &lt;span style="color:#bd0026"&gt;ligne rouge&lt;/span&gt; &gt; variance &lt;span style="color:#558ed5"&gt;ligne bleu&lt;/span&gt;).
+- Si on somme la valeur propre de tous les facteurs, on retrouve la totalité de l’information du tableau initiale.
+]
+
+.center-img[
+.pull-right[
+&lt;img src="./assets/images/6-acp/pearson.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## La part de variance
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La forme brute de la valeur propre ne vous aiderai pas à caractériser le facteur. Il faut diviser la valeur propre d’un facteur par la valeur propre totale. On obtient la **part de variance** de ce facteur dans l’information totale du tableau de départ. Dans une ACP, la valeur propre totale est égale au nombre de facteurs.
+
+--
+
+- Elle s’interprète comme la part d’information portée par chaque facteur
+- Le pourcentage cumulé arrivera à 100% (puisque toute l’information est résumés : rien ne se perd, tout se transforme)
+
+.center-img[
+&lt;table class="table table-striped" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Sortie &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F1 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F2 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F3 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F.. &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F13 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Valeur propre &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 7.639 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.663 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.082 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.006 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Variance (%) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 (7.639/13) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 12.793 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.323 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.044 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; % cumulé &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 71.556 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 79.879 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 100 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+---
+class: animated, fadeIn
+## Interprétation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La part de variance de chaque facteur sert donc à mesurer sa **part d'information**
+
+.center-img[
+&lt;table class="table table-striped" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Sortie &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F1 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F2 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F3 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F.. &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F13 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Valeur propre &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 7.639 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.663 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.082 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.006 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Variance (%) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 (7.639/13) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 12.793 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.323 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.044 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; % cumulé &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 71.556 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 79.879 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 100 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+--
+
+Dans l'exemple : 
+- Le premier facteur résume 58 % de l’information du tableau.
+- Dès F2, plus de 70% de l’information est résumée.
+- Si on s’arrête à F3, 4/5ème de l’information est résumée alors qu’il y a 13 variables. 
+- Cependant, les facteurs ayant une faible valeur propre sont parfois intéressants à étudier.
+
+---
+class: animated, fadeIn
+## Graphiques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Certains logiciels proposent des graphiques pour résumer les valeurs propores et parts de variance.
+
+.center-img[
+&lt;img src="./assets/images/6-acp/screeplot.png" width="80%" /&gt;
+]
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 4- Les sorties sur les variables
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Les coordonnées des variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Dans les tableaux de sorties de l’ACP, on trouvera les **coordonnées des variables** : 
+- Les coefficients de **corrélations** des variables avec les facteurs.
+- (ainsi que le cosinus de l'angle entre la variable et l'axe factoriel).
+
+--
+
+Elles permettent **d’identifier la composition de chaque facteur** ainsi que les **oppositions/ associations** entre les variables sur le facteur.
+
+Attention, des coefficients de corrélations positifs ou négatifs ne correspondent pas à des sous/sur représentations.
+
+---
+class: animated, fadeIn
+## Les coordonnées des variables : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+.pull-left[.font80[
+Le facteur 1 montre une opposition entre deux groupes de pays :
+
+- &lt;span style="color:#bd0026"&gt;La part des actifs agricoles, la part de jeunes, le taux de mortalité infantile et l'indicateur conjoncturel de fécondité sont **élevés**&lt;/span&gt;.
+- &lt;span style="color:#558ed5"&gt;Le PNB/PIB, le taux de scolarisation et d'urbanisation, la part des plus de 60 ans et l'espérance de vie H/F sont **élevés**&lt;/span&gt;.
+
+Cela veut aussi dire que dans le premier groupe, le PNB/PIB est **faible** ou encore que dans le second groupe, la part des jeunes est **faible**.
+
+De plus, nous verrons que tous les pays ne sont pas forcément concernés par ce facteur. Certains ne se retrouvent pas dans cette différenciation (mais le sont dans d'autres facteurs).
+
+F3 présente essentiellement une opposition entre pays densément peuplés ou non.
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/6-acp/coord_var.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Les contributions des variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Dans les tableaux de sorties de l’ACP, on trouvera également les **contributions des variables**: 
+- la part relative de la variable à la formation de l'axe.
+- (l’intensité de chaque variable dans la composition du facteur).
+
+Avec les coordonnées des variables, il s’agit de la sortie la plus utile pour **interpréter** les facteurs.
+
+---
+class: animated, fadeIn
+## Les coordonnées des variables : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Dans cet exemple, la part des agriculteurs contribue à hauteur de **10,8%** à la formation de F1, mais à peine **0,1%** de F3.
+
+F3 est composé avant tout d’informations relatives à la densité de population (49,9%). 
+
+Dans une moindre mesure, la contribution de la part de la population urbaine y est de 13% tout comme le taux d’alphabétisation et de scolarisation.
+]
+
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/6-acp/contrib_var.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Autres sorties sur les variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+D'autres sorties sur les variables existent, mais ils vous intéressent moins à votre niveau : 
+- les vecteurs propres, les coefficients de chaque variable (centrée-réduite) dans l'équation linéaire du facteur étudié. Ils servent à calculer les coordonnées des individus (cf. infra).
+- Les cosinus². Il s’agit  des coefficients de détermination entre la variable et l’axe. 
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 5- Les sorties sur les individus
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Les coordonnées des individus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les coordonnées des individus ne doivent pas être confondues avec les coordonnées des variables. 
+
+Elles correspondent à la position de chaque individus géographique par rapport à l’axe factoriel étudié. Il s’agit des données à cartographier.
+
+--
+
+- Les individus avec des &lt;span style="color:#FF6B6B"&gt;coordonnées positives&lt;/span&gt; iront donc dans **le même sens** que les &lt;span style="color:#FF6B6B"&gt; coordonnées positives sur les variables&lt;/span&gt;, mais dans le **sens inverse** des &lt;span style="color:#4b8b8b"&gt; coordonnées négatives sur les variables&lt;/span&gt;.
+- Les individus avec des &lt;span style="color:#4b8b8b"&gt;coordonnées négatives&lt;/span&gt; iront donc dans **le même sens** que les &lt;span style="color:#4b8b8b"&gt; coordonnées négatives sur les variables&lt;/span&gt;, mais dans le **sens inverse** des &lt;span style="color:#FF6B6B"&gt; coordonnées positives sur les variables &lt;/span&gt;.
+- Attention, les coordonnées des individus ne sont pas des coefficients de corrélation contrairement aux coordonnées des variables. Elles peuvent être inférieures à -1 ou supérieures à +1
+
+---
+class: animated, fadeIn
+## Les coordonnées des individus : exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/indiv.png" width="80%" /&gt;
+]
+
+.font90[
+Dans cet exemple, &lt;span style="color:#558ed5"&gt;l’Egypte&lt;/span&gt; s’oppose à &lt;span style="color:#bd0026"&gt;l’Ethiopie, le Malawi et l’Angola&lt;/span&gt; sur F1. L’interprétation des coordonnées des individus se fait dans le même sens que l’interprétation des coordonnées des variables.
+- &lt;span style="color:#558ed5"&gt;L’Egypte &lt;/span&gt; à un &lt;span style="color:#558ed5"&gt;taux d’urbanisation, de plus de 60 ans, ou encore un PIB plus importants&lt;/span&gt; car son signe sur les coordonnées des individus &lt;span style="color:#558ed5"&gt;(négatif)&lt;/span&gt; va dans le même sens que ces variables sur F1. En revanche l'ISF a des &lt;span style="color:#bd0026"&gt;coordonnées positives&lt;/span&gt; sur F1, ce qui signifie que l'ISF est plus faible en Egypte (les signes s’opposent). 
+- Inversement, pour &lt;span style="color:#bd0026"&gt;l’Ethiopie, le Malawi et l’Angola, l'ISF est fort&lt;/span&gt; (coordonnées &lt;span style="color:#bd0026"&gt;positives&lt;/span&gt; de ces individus sur F1) alors que le taux d'urbanisation est plus &lt;span style="color:#558ed5"&gt;faible&lt;/span&gt;. Il existe même une hiérarchie entre ces trois pays pour F1, L'éthiopie ayant la coordonnées la plus forte (3,2) contre 2,2 et 2,5 pour l'Angola et le Malawi
+]
+
+---
+class: animated, fadeIn
+## Graphiques : les plans factoriels
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Les outils de statistiques permettent de créer des **plans factoriels** : 
+- un nuage de points croisant les coordonnées de deux facteurs.
+- On peut  réaliser des plans factoriels pour les variables et les individus.
+- Ils permettent de mettre en évidence des associations de variables sur un ou plusieurs facteurs.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/6-acp/f1.png" width="80%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Graphiques : les plans factoriels
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/f2f3.png" width="100%" /&gt;
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 6- Exemples d'interprétation
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Démarche
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[.font90[
+Pour comprendre à quoi correspond chaque facteur, il faut donc :
+- Regarder la part d’information expliquée par chaque Facteur (Valeur propre, variance et % cumulé de la variance).
+- Interpréter les coordonnées des variables sur les facteurs.
+- Tout en regardant leur contribution. 
+
+Pour les coordonnées, vous pouvez vous aider d'un axe gradué de +1 à -1 en y plaçant des coordonnées des variables les plus importantes. Vous verrez ainsi les associations / oppositions de variables (cf. ci-contre).
+
+Une fois les facteurs caractérisés, vous pouvez passer à la cartographie. Pour cela, on utilise les **coordonnées des individus**.
+]]
+
+.pull-right[
+.center-img[
+
+&lt;img src="L3_Cours_6_ACP_files/figure-html/unnamed-chunk-21-1.png" width="100%" /&gt;
+
+]]
+
+---
+class: animated, fadeIn
+## A- Interprétation des facteurs
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Quand on veut savoir ce qui différencie le plus les pays africains, le recours à l’Analyse en Composantes Principales normée est pertinent.
+
+--
+
+La réorganisation et la hiérarchisation de l’information sont bien nettes :
+- dès le premier facteur plus de la moitié de l’information contenue dans le tableau initiale de données est résumée &lt;span style="color:#fd8d3c"&gt;(58,7%)&lt;/span&gt; 
+- les 3 premiers facteurs (soit près du tiers de l’ensemble) prennent en compte quant à eux &lt;span style="color:#bd0026"&gt;79,8%&lt;/span&gt; de cette même information
+
+.center-img[
+&lt;table class="table table-striped" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Sortie &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F1 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F2 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F3 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F.. &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; F13 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Valeur propre &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 7.639 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.663 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.082 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.006 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Variance (%) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 (7.639/13) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 12.793 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.323 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.044 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; % cumulé &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 58.762 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 71.556 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 79.879 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ... &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 100 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+---
+class: animated, fadeIn
+## B- Interprétation des variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/ex2.png" width="100%" /&gt;
+]
+
+.font90[
+- F1 correspond à la principale différenciation entre les pays africains sur nos données (58% de la variance totale). 
+- La population active employée dans le secteur agricole, l’indice synthétique de fécondité et la part des moins de 15 ans ont les coordonnées les plus positives sur le premier facteur, respectivement +0,909, +0,863 et +0,862. 
+- Tandis que le Produit intérieur brut (-0,88) et le Produit national brut (-0,82) sont caractérisés par les coordonnées les plus négatives.
+]
+
+---
+class: animated, fadeIn
+## C - Interprétation des variables et des individus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[.font80[
+Le premier facteur, qui prend en compte près de 60% de l’inertie totale est défini par l’opposition entre les pays où la part de population active employée dans le secteur agricole, l’indice synthétique de fécondité et la part des moins de 15 ans dans la population totale sont élevés et ceux où les PIB et PNB sont forts.
+
+La principale structuration des différences entre les pays africains est basée sur une opposition entre des phénomènes économiques et des caractères démographiques.
+
+Ce premier facteur oppose la plupart des pays situées aux marges nord et sud du continent (&lt;span style="color:#558ed5"&gt;Tunisie (-6,12), Libye (-6,52) et Afrique du Sud (-5,78)&lt;/span&gt;) à certains pays de la zone sub-saharienne &lt;span style="color:#bd0026"&gt;(Niger (+4,21) et Ethiopie (+3,31))&lt;/span&gt;.
+
+Le Cameroun à des coordonnées relativement faibles sur F1 (-0,8). L’opposition entre phénomènes économiques et caractères démographiques est donc peu marquée.
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/6-acp/ex3.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## D – Cartographie des coordonnées des individus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+La cartographie reste plus efficace que le plan factoriel pour visualiser la répartition des **coordonnées des individus**. C’est également une aide à l’interprétation des phénomènes observés.
+
+La cartographie des contributions des individus permet quand à elle de vérifier qu’un facteur n’est pas construit à partir d’un ou deux individus très différents des autres.
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/6-acp/ex4.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Exercice : interprétation du facteur 2
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/6-acp/exo.png" width="100%" /&gt;
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# Conclusion
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L’analyse en composante principale et plus généralement les analyses factorielles permettent de **réorganiser**, **hiérarchiser** et rendre **indépendantes** les nouvelles informations créées.
+
+--
+
+L’ACP peut être réalisée :
+- à des fins exploratoires (comprendre les associations entre les variables sur un territoire).
+- Pour réorganiser les indicateurs d’un tableau (avoir une vision d’ensemble de la répartition des classes d’âges par commune).
+- Pour comprendre les structures latentes du tableau de données.
+- Pour créer des indicateurs synthétiques (indicateur de niveau de vie par exemple).
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Un **facteur** est une variable **synthétique** autrement dit une combinaison linéaire de toutes les variables présentes dans le tableau élémentaire de données.
+- Le passage aux facteurs permet de réorganiser l’information et de la hiérarchiser.
+- Chaque facteur est caractérisé par une valeur propre, une part de variance totale (%variance) et une part de variance cumulée (%cumulée). 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les **coordonnées des variables** sur chacun des facteurs sont les valeurs des coefficients de **corrélation** des variables avec chacun des facteurs.
+- Les coordonnées négatives ne renvoient pas à des sous représentations. De même, les coordonnées positives ne renvoient pas à des surreprésentations.
+- Elles permettent en revanche d'associer ou d'opposer les variables sur un facteur et donc d'**interpréter** chaque facteur
+
+--
+
+On y associe les **coordonnées des individus**. Un individus avec une coordonnée positive sur F1 s'interprétera comme le côté positif des variables sur le facteur 1. Inversement pour les cooordonnées négatives.
+- Certains individus vont avoir des coordoonnées proches de zéro sur un facteur (pas d'influence des coordonnées négatives ou positives des variables). Mais peuvent très bien se retrouver avec de fortes coordonnées sur une autre facteur.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

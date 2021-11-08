@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L3_Cours_5_reg.knit</title>
+    <meta charset="utf-8" />
+    <script src="assets/kePrint-0.0.1/kePrint.js"></script>
+    <link href="assets/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/theme_flo.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/tools.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+
+class: center, middle, inverse, title-slide, animated, fadeIn
+# Analyse de données L3 2021-2022
+# Cours n°5- La régression linéaire et la régression multiple&lt;br /&gt; &lt;br /&gt;
+### Florian Bayer
+
+&lt;img src="./assets/css/logo_p1_col.jpg" STYLE="position:absolute; BOTTOM:20px; RIGHT:5px; WIDTH:15%;  "/&gt;
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Rappels et objectifs du cours
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Lors du précédent cours, nous avons qu'il était possible de mesurer la relation -*linéaire ou non*- entre un deux caractères quantitatifs `\(x\)` et `\(y\)`. Cette mesure ce fait à l'aide du coefficient de corrélation R.
+
+--
+
+Il est complémentaire à la **régression linéaire** qui vise à résumer et/ou **modéliser** un phénomène.
+
+--
+
+En géographie, **identifier** puis **modéliser** des **relations** permet de comprendre un phénomène sur un espace donné, de prévoir la survenue de ce phénomène ou encore de déterminer les variables qui manquent à notre explication.
+
+--
+
+Le monde étant complexe, il n'est néanmoins pas rare de devoir expliquer `\(y\)` par plusieurs variables `\(x_n\)` 
+
+L’outil statistique qui permet de modéliser une variable `\(y\)` par plusieurs variables explicatives (on parle de **régresseurs**) est la **régression multiple**. Ce n’est rien d’autre qu’un cas particulier de la régression linéaire simple. 
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 1- La régression linéaire
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## La régression linéaire
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Une fois une **relation linéaire significative** mise en évidence à l'aide de la corrélation, il est possible de **modéliser** la relation via la régression linéaire. 
+
+--
+
+Avec la régression linéaire, on résume le nuage de point par une **droite** dont l'équation sera 
+
+
+`\(y = ax + b\)`
+
+
+---
+class: animated, fadeIn
+## La droite de régression de y en fonction de x 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+La régression linéaire considère que les valeurs `\(y\)` dépendent de celles de `\(x\)`, c'est-à-dire que `\(x\)` doit permettre de prévoir `\(y\)`. 
+
+On cherche à **minimiser l’erreur de prévision**, c’est-à-dire les résidus entre les `\(y\)` observés (les points) et les `\(y\)` théorique (le modèle, c'est-à-dire la droite). 
+
+Pour cela on projette chaque point parallèlement à l’axe `\(y\)` et on fait en sorte que la somme des distances entre le point et la droite (les traits rouges) soit minime.
+
+C'est écart entre le point et la droite est appelé **résidu** `\(e\)`.
+]
+
+.pull-right[
+
+.center-img[
+`\(y = ax + b\)`
+
+&lt;img src="./assets/images/4-corr/resid2.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Application
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On cherche à déterminer s’il existe une relation entre la température Y et l'altitude X. Pour cela, on enregistre la température dans 8 stations. On calcul d’abord la corrélation :
+
+.pull-left3[
+&lt;table class="table table-striped table-hover" style="font-size: 16px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; i &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi-moy(x) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi-moy(y) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; [xi-moy(x)] [yi-moy(y)] &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -6000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -6000.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; moyenne &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; -2250.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; ect &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 612.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 3.8 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 612.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 3.8 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 2277.6 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right1[
+- Covariance = -2250 
+- écart-type(x) = 612.4
+- écart-type(y) = 3.8
+- `\(R = \frac{-2250}{(612,4.3,8)}=-0,97\)`
+
+On teste R, avec 8 stations météorologiques (6 degrés de liberté)
+Le résultat es significatif à moins de 1%
+]
+
+
+---
+class: animated, fadeIn
+## Application
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[.font90[
+On trace le nuage de point et on constate que les données s’alignent bien sur une droite de façon monotone. Le signe de la relation est négatif.
+
+L’hypothèse sur le sens de la relation peut être :
+- La température dépend de l’altitude (majorité des cas)
+- Un alpiniste pourrait toutefois déterminer son altitude en fonction de la température
+
+On postule que la relation la plus probable est la première.  
+
+On cherche à tracer la droite `\(y^*_i=ax_i+b\)` qui minimisera les résidus en `\(y\)`
+]]
+
+.pull-right[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Estimation de la droite de régression
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+Pour estimer la droite qui possède les résidus minimes en `\(y\)`, on utilise pour des raisons mathématiques le **critère des moindres carrés** (facilité de calcul). 
+
+En d'autre termes, on souhaite que la **somme des carrés des résidus** en `\(y\)` soit la plus petite possible.
+
+--
+
+Pour calculer les paramètres `\(a\)` (coefficient directeur) et `\(b\)` (ordonnée à l'origine) de cette droite des moindres carrés `\(y=ax+b\)`, on utilise les formules suivantes :
+
+- `\(a= \frac{cov_{x,y}}{\sigma_x²}\)` 
+soit `\(a= \frac{-2550}{612²}=-0,006°c/m\)`
+- `\(b= \bar{y}-(a.\bar{x})\)` 
+soit `\(b= 4-(-0.006*1500)=13°c\)`
+
+--
+
+&lt;br&gt;
+L'équation de la droite donne donc: 
+.center-img[
+`\(Température (°C) = -0,006 . altitude (m) + 13\)`
+]
+
+---
+class: animated, fadeIn
+## Interprétation des paramètres
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+`\(a\)` est la pente de la droite par rapport aux abscisses : 
+- la **variation moyenne** de `\(y\)` lorsque `\(x\)` **augmente de 1**. 
+- Il s’agit ici du gradient thermique : tous les 100 mètres, la température baisse de 0,6°C en moyenne.
+
+--
+
+`\(b\)` est l’ordonnée à l’origine de la droite de régression :
+- la valeur modélisée (théorique) de `\(y\)` lorsque `\(x\)` vaut 0. 
+- Il s’agit ici de la température ramenée au niveau de la mer.
+
+--
+
+Il faut maintenant juger la pertinence, son **adéquation à la réalité**. Un critère de jugement simple est celui faisant appel aux résidus `\(e\)`, qui correspondent aux **écarts entre ce que le modèle estime et la réalité**. 
+
+--
+
+Si les écarts sont faibles entre les valeurs observées et estimées, le modèle peut-être jugé pertinent et vice-versa.
+
+
+
+---
+class: animated, fadeIn
+## Qualité de l’ajustement
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font90[
+On peut décomposer l'information totale du modèle pour juger de sa pertinence. `\(y\)` étant la variable à expliquer et `\(y^*\)` la variable modélisée par l'équation de la droite de régression : 
+- &lt;span style="color:#FF6B6B"&gt; `\(Information\:observée\:=\)` &lt;/span&gt;  &lt;span style="color:#4b8b8b"&gt; `\(information\:modélisée\)` &lt;/span&gt;   &lt;span style="color:#FF9F1C"&gt;  `\(+\:information\:résiduelle\)` &lt;/span&gt; 
+
+Ce qui se traduit mathématiquement par :
+- &lt;span style="color:#FF6B6B"&gt; `\(variance(y)\:=\)` &lt;/span&gt;  &lt;span style="color:#4b8b8b"&gt; `\(variance(y^*=ax+b)\)` &lt;/span&gt; &lt;span style="color:#FF9F1C"&gt; `\(+\:variance(e)\)` &lt;/span&gt; 
+]
+
+--
+
+.font90[
+Cela signifie que plus le modèle &lt;span style="color:#4b8b8b"&gt; `\(y^*=ax+b\)` &lt;/span&gt; sera proche de la réalité &lt;span style="color:#FF6B6B"&gt; `\(y\)` &lt;/span&gt;, moins la variance des résidus  &lt;span style="color:#FF9F1C"&gt; `\(e\)` &lt;/span&gt; sera importante et inversement.
+]
+
+--
+
+.font90[
+On peut donc facilement calculer un indicateur qui nous informe de la part d'information modélisée par le modèle par rapport à la réalité : **le coefficient de détermination** `\(r^2\)` :
+- le ratio entre la variance de `\(y^*\)` et la variance de `\(y\)`. si `\(x\)` permet de prédire toutes les valeurs de `\(y\)`, la variance de `\(y*\)` serait égale à celle de `\(y\)` et la variance des résidus `\(e\)` sera nulle.
+- on peu aussi élever le coefficent de Bravais-Pearson au carré.
+]
+
+--
+
+.font90[
+`\(r^2\)` varie donc  de 0 à 1 :
+- `\(r^2=0\)` : `\(x\)` n'apporte aucun élément de prévision sur `\(y\)` (0%)
+- `\(r^2=1\)` : `\(x\)` permet de prévoir toutes les valeurs de `\(y\)` (100%)
+]
+
+
+---
+class: animated, fadeIn
+## Calcul du r² et des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+&lt;table class="table table-striped table-hover" style="font-size: 12px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; i &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi* = -0.006xi+13 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; e=yi-y* &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; moyenne &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; variance &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 428571.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 16.3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 15.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.9 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+.font80[
+On peut calculer `\(r^2\)` de deux façons
+- `\(r^2 = 15,4/16,3 = 0,95\)` 
+- `\(r^2 = R^2 = (-0,97)^2 = 0,95\)`
+
+On constate bien par ailleurs que 
+- `\(variance(y)=variance(y*)+variance(e)\)`
+- `\(16.3=15.4+0.9\)`
+]]
+
+&lt;br&gt;
+.font80[
+Connaître l'altitude permet dans l'exemple de **prévoir 95%** des différences de températures entre les stations. 
+
+- **L'information résiduelle**, c’est-à-dire les différences de température non imputables aux différences d'altitude est très faible (les 5% restant).
+- L'importance des facteurs autres que l'altitude pouvant générer des différences de températures entre les stations est donc très faible.
+- A noter que le `\(r^2\)` se teste avec un F de Fisher-Snedecor, mais les logiciels vous donneront la p-value associée.
+]
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- Les résidus
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Les résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font90[
+Les résidus correspondent à l’écart entre les valeurs observées `\(y_i\)` et celles prédites `\(y_i^*\)` par le modèle ou autrement dit. Plus les résidus sont importants, plus l'écart entre l'observé et le modèle est large.]
+
+.pull-left[
+&lt;table class="table table-striped table-hover" style="font-size: 11px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; i &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; xi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; yi* = -0.006xi+13 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; e=yi-y* &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2000.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -2.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; moyenne &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 1500.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 4.0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;"&gt; variance &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 428571.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 16.3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 15.4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;"&gt; 0.9 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+.pull-right[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-7-1.png" width="80%" /&gt;
+]
+
+.font80[
+- Trois stations ont des résidus &lt;span style="color:#FF6B6B"&gt;**positifs**&lt;/span&gt;, la température étant supérieure de 1° par rapport à la modélisation (**le modèle sous estime la réalité**). 
+- Deux stations sont parfaitement modélisées **sans résidus**.
+- Trois stations ont des résidus &lt;span style="color:#4ECDC4"&gt;**négatifs**&lt;/span&gt;, la température étant inférieure de  1° par rapport à la modélisation (**le modèle sur estime la réalité**).
+]
+
+---
+class: animated, fadeIn
+## Interprétation des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+.font90[
+L'un des intérêts de la modélisation est de pouvoir **interpréter les écarts au modèle**. Sont-ils liés à des erreurs de mesure ? D'autres facteurs explicatifs ?]
+
+--
+
+.font90[
+.pull-left[
+Dans l'exemple, c’est l’ensoleillement qui compte. La répartition des résidus n’est pas lié au hasard mais au versant :
+- &lt;span style="color:#FF6B6B"&gt; les résidus **positifs** se concentrent sur les versants exposés sur l'adret &lt;/span&gt;
+- &lt;span style="color:#4ECDC4"&gt; .es résidus **négatifs** se concentrent sur les versants exposés à l'ubac. &lt;/span&gt;
+- &lt;span style="color:#FF9F1C"&gt; Les résidus **nuls** sont en fond de vallées ou au sommet.&lt;/span&gt;
+
+Il serait alors possible d’ajouter une nouvelle variable explicative à notre modèle, comme la quantité d’énergie solaire reçu au m². 
+]]
+
+.pull-right[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-8-1.png" width="100%" /&gt;
+]
+
+
+---
+class: animated, fadeIn
+## Validation des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L’interprétation des résidus est un bon moyen de juger un modèle de régression linéaire ou de la régression multiple. Quatre points sont utilisés en statistiques :
+- Vérifier que les résidus ont une distribution **normale**.
+- Vérifier l’**homoscédasticité** des résidus.
+- Vérifier qu’il n’y a pas d’**autocorrélation** des résidus.
+- Vérifier la **continuité** de la distribution des résidus (non abordée dans ce cours).
+
+La plupart des outils statistiques comme SAS ou R vous donnent des outils pour vous aider.
+
+---
+class: animated, fadeIn
+## Normalité des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[.font80[
+Comme pour le coefficient de corrélation de Bravais-Pearson, la régression linéaire doit être utilisée sur des distributions de x et y approximativement gaussiennes. 
+
+De plus, il faut que les résidus suivent une loi normale, c'est-à-dire qu'on s'attend à avoir 66% des résidus entre +1 et -1 écart-type ( `\(\bar{e}=0\)` ), 95% entre +2 et -2 écart-type.
+
+Plusieurs outils existent pour vous aider: 
+- la mise en évidence d'un interval de confiance à 95% autours de la droite de régression (zone grise sur le graphique)
+- l'utilisation de test comme le Shapiro-Wilk’s, qui compare la distribution des résidus à une loi normale: si le test est significatif à 5%, les résidus ne suivent **pas** une loi normale. Dans l'exemple, la p-value =0.02, donc significative à 5%. Les résidus `\(e\)` ne suivent **pas** une loi normale.
+- des graphiques de comparaison des distributions (Q-Q plot, densité de noyau)
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-9-1.png" width="80%" /&gt;
+
+```
+
+	Shapiro-Wilk normality test
+
+data:  model$residuals
+W = 0.92337, p-value = 0.02568
+```
+]]
+
+
+---
+class: animated, fadeIn
+## Normalité des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Avec les logiciels de statistique, on peut comparer la distribution des résidus à ce qu'ils seraient en s'ils suivaient une loi normale à l'aide des densités de noyaux.
+.center-img[
+&lt;img src="./assets/images/4-corr/norm_sas.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Homoscédasticité des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Les résidus doivent avoir une variance et une moyenne constante : **homoscédasticité** 
+
+Il arrive fréquemment que les estimations `\(y^*\)` soient très bonnes pour les faibles valeurs de `\(y\)`, moins pour les valeurs plus fortes. Le nuage de points des résidus formera alors un **entonnoir** : **hétéroscédasticité**
+
+Une solution possible pour régler le problème est de transformer `\(x\)` et/ou `\(y\)` en logarithme avant de faire la régression.
+]
+
+.pull-right[.center-img[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-11-1.png" width="65%" /&gt;
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-12-1.png" width="65%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Autocorrélations des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+L’autocorrélation **statistique** des résidus correspond à une corrélation entre les résidus `\(y-y^*\)` et `\(y\)`. Cela signifie souvent qu’il y a bien une relation, mais que le modèle linéaire n’est pas adapté. 
+
+Les résidus forment alors une **courbe** qui croise la droite de régression. La transformation des variables `\(x\)` et `\(y\)` permet parfois de régler le problème.
+
+L’autocorrélation **spatiale** des résidus en régression linéaire souligne souvent le fait qu’une variable explicative est manquante.
+]
+
+.pull-right[
+&lt;img src="L3_Cours_5_reg_files/figure-html/unnamed-chunk-13-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Transformation des données
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font90[
+En régression, il est parfois nécessaire de **transformer** les variables pour avoir un meilleur ajustement. Par exemple lorsque le nuage de points n’est pas modélisé par une droite, mais par une courbe.
+En transformant les variables `\(x\)` et/ou `\(y\)`, on cherchera à rendre le nuage de points « droit ». En contrepartie, **l’interprétation devient plus complexe** (log de la densité?).]
+
+.center-img[
+&lt;img src="./assets/images/4-corr/transfo.png" width="70%" /&gt;
+]
+
+
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- La régression multiple
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Similitudes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La régression linéaire simple et la régression multiples reposent sur les **mêmes principes** et répondent aux mêmes **objectifs** (résumer, modéliser, prévoir).
+- La régression multiple fait appel au coefficient de corrélation linéaire.
+- On cherche l'équation qui résume au mieux `\(y\)` en fonction des régresseurs (critère des moindres carrées).
+- On juge de la qualité de la modélisation à l'aide du coefficient de **détermination multiple**.
+- On observe les **résidus**, qui peuvent être cartographiés.
+
+Le contrôle des résidus se fait de la même manière que pour la régression linéaire (normalité, homoscédasticité, autocorrélation, discontinuité).
+
+---
+class: animated, fadeIn
+## Différences
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Il existe toutefois quelques différences importantes :
+- Avec 2 régresseurs, la représentation graphique devient complexe (en trois dimensions). Au delà, elle se fait à `\(n\)` dimensions (hyperplan).
+- Les variables explicatives apportent une partie de l'information pour modéliser `\(y\)`. La principale difficulté de la régression multiple est de choisir des variables qui ne soient **pas redondantes** (qui n'apportent pas plusieurs fois la même information pour expliquer `\(y\)`).
+- Le calcul manuel devient complexe au-delà de 2 régresseurs et doit faire appel à des calculs matriciels.
+]
+
+.center-img[.pull-right[
+&lt;img src="./assets/images/5-multiple/dim.gif" width="80%" /&gt;
+
+&lt;img src="./assets/images/5-multiple/hypercube.gif" width="80%" /&gt;
+
+]]
+
+
+---
+class: animated, fadeIn
+## Equation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour la régression linéaire simple, la droite d'équation de `\(y\)` en fonction de `\(x\)` est : `\(y=ax+b\)`
+
+La régression multiple consiste à ajouter des variables explicatives `\(x_i\)` à l'équation, afin de mieux modéliser `\(y\)`. On ne parle donc plus de droite mais **d’équation de régression** qui s'écrira:
+`\(y=a_1x_1 + a_2x_2 + a_ix_i +...+ b\)` 
+
+- `\(x_i\)` correspondant aux différentes variables explicatives
+- `\(a_i\)` les paramètres et le signe de `\(x_i\)` 
+- `\(b\)` la part non expliquée par le modèle (l’erreur commise par le modèle pour chaque valeur de `\(y\)`)
+
+Comme pour la régression linéaire, l’information se décompose de la manière suivante:
+- &lt;span style="color:#FF6B6B"&gt; `\(Information\:observée\:=\)` &lt;/span&gt;  &lt;span style="color:#4b8b8b"&gt; `\(information\:modélisée\)` &lt;/span&gt;   &lt;span style="color:#FF9F1C"&gt;  `\(+\:information\:résiduelle\)` &lt;/span&gt; 
+
+Ce qui se traduit mathématiquement par :
+- &lt;span style="color:#FF6B6B"&gt; `\(variance(y)\:=\)` &lt;/span&gt;  &lt;span style="color:#4b8b8b"&gt; `\(variance(y^*=a_ix_i+b)\)` &lt;/span&gt; &lt;span style="color:#FF9F1C"&gt; `\(+\:variance(e)\)` &lt;/span&gt; 
+
+
+---
+class: animated, fadeIn
+## Colinéarité 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La **principale difficulté** de la régression multiple réside dans le fait que les régresseurs peuvent **interagir entre eux** et apporter la  &lt;span style="color:darkred"&gt; **même information au modèle**  &lt;/span&gt;  : la **colinéarité**
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/multicol.png" width="100%" /&gt;
+]
+
+Si vous ajouter toutes les variables à votre disposition, l’**interprétation** n’en sera que plus **difficile** et vous ne pourrez probablement **pas valider** le modèle.
+
+Une forte colinéarité peut même aboutir au changement de signe de la relation d’une variable dans le modèle multiple par rapport au modèle linéaire simple… Des indicateurs statistiques existent pour vous aider et ils seront abordés dans ce cours.
+
+---
+class: animated, fadeIn
+## Comment définir un modèle ? 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il existe plusieurs méthodes statistiques qui permettent de contourner les principales difficultés de la régression multiple : 
+- Utilisation du `\(r^2\)` **ajusté** à la place du `\(r^2\)`.
+- Mesure de la **significativité** des paramètres des régresseurs.
+- Mesure de la **colinéarité.**
+- Outils pour **comparer les modèles entre eux**.
+
+La plupart des logiciels de statistiques comme XLSTAT, SAS ou R proposent ces outils. Vous pouvez même réaliser la régresion sous Excel à l’aide de l’utilitaire d’analyse, mais les outils seront plus limités.
+
+---
+class: animated, fadeIn
+## `\(r^2\)` ajusté 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les logiciels donnent souvent deux coefficients de détermination **multiples**:
+- Un premier non ajusté (le même que pour la régression linéaire simple)
+- Un second ajusté : `\(r^2\)` **ajusté**
+
+C’est ce dernier qui nous intéresse, car il prend en compte le nombre de variables alors que le `\(r^2\)` classique augmentera mathématiquement en fonction du nombre de régresseurs. En raison de son mode de calcul, il peut parfois être négatif (rare).
+
+Le `\(r^2\)` **ajusté** s’interprète comme le `\(r^2\)`  et permet de **comparer des modèles entre eux** : on préfère généralement un modèle qui explique mieux la variance de `\(y\)` qu'un second, qui l'explique moins bien...
+
+---
+class: animated, fadeIn
+## Test des paramètres des régresseurs
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les paramètres du régresseur correspondent aux coefficients `\(a_i\)` de l'équation de régression :
+
+`\(y=a_1x_1 + a_2x_2 + a_ix_i +...+ b\)`
+
+Comme pour la régression linéaire, ils correspondent à la **variation moyenne** de `\(y\)` lorsque `\(a_i\)` **augmente de 1** et que les autres coefficients sont constants.
+
+Tous les logiciels de statistiques testent la robustesse des coefficients `\(a_i\)` à l’aide d’une statistique `\(t\)` de **Student** et de sa probabilité `\(t-value\)`. Elle s'interprète comme une `\(p-value\)`.
+
+Prenez de préférence les valeurs de `\(t-value &lt;0,05\)`. Cette statistique est essentielle car elle permet de définir manuellement un modèle et de le **valider**
+
+---
+class: animated, fadeIn
+## Mesure de la colinéarité
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour mesurer la **redondance** entre les variables explicatives, on utilise la statistique **VIF** (Variance Inflation Factor) :
+- Il y a une VIF par variable explicative. On prend toujours la **VIF maximum** de **l’ensemble des régresseurs** pour mesurer la colinéarité.
+- Plus la VIF est **petite**, moins la colinéarité est importante.
+
+Dans certain cas, enlever une variable corrélée aux autres **fait drastiquement baisser les autres VIF**
+
+Il n’y a pas vraiment de consensus sur la valeur limite VIF à prendre en compte (inférieure à 3 ou à 10?). On cherchera pour ce cours des **VIF inférieures à 7.** Précisez le dans la méthodologie de votre étude.
+
+Il n’y a pas de formule prédéfinie pour calculer le VIF sous Excel, mais elle est disponible dans tous les logiciels de statistiques.
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 4- Choisir un modèle
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Sélection d’un modèle
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left3[
+
+
+Généralement, plusieurs modèles de régression vous serons proposés dans les logiciels de statistique.  Si vous devez choisir entre plusieurs modèles, la sélection peut se faire sur :
+
+- le `\(r^2\)` ajusté
+- la facilité d'interprétation du modèle (il est préférable d'avoir un modèle moins bon que l'on peut expliquer plutôt qu'un modèle excellent que l'on ne peut interpréter)
+- l’**AIC** : *Akaike Information Criterion* : plus l’AIC est petit, moins le modèle est complexe par rapport à ce qu'il explique (parcimonie). On choisit donc les AIC les plus faibles.
+
+La régression est donc un processus itératif : 
+- on lance la regression
+- on analyse les résultats
+- on corrige / adapte le modèle
+- on relance la régression
+]
+
+.pull-right1[
+.center-img[
+&lt;img src="./assets/images/5-multiple/Akaike.jpg" width="100%" /&gt;
+]]
+
+
+---
+class: animated, fadeIn
+## Sélection d’un modèle
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On cherche à faire augmenter r², mais pas trop le nombre de variables dans le modèle
+
+Vous pouvez choisir un des modèles avec l’aide des paramètres suivants :
+- Prendre les meilleurs r² ajustés 
+- Recherche des 5 à 10 meilleurs modèles selon l’AIC (les plus petits)
+- Vérification de la significativité de tous les paramètres avec la t-value
+- Vérifier l’adéquation des signes de vos paramètres avec votre hypothèse : le taux de chômage ne varie pas dans le même sens que le niveau d’éducation.
+- Vérification des VIF &lt;7
+
+Le plus important en science sociale n’est pas d’avoir un modèle très proche de la réalité avec 30 variables explicatives. La force de la régression est sa capacité de **modélisation synthétique de la réalité** (d’où l’utilisation d’une droite de régression et non pas de polynômes complexes).
+
+Il faut donc contextualiser le modèle par rapport à la problématique et faire un **compromis** entre adéquation à la réalité et simplicité d’interprétation.
+
+
+---
+class: animated, fadeIn
+## Validation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Outre la validation **statistiques** de vos modèles, n’oubliez pas de **confronter** vos résultats avec votre hypothèse et de répondre à votre problématique.
+- Vérifiez le **r² ajusté** de votre modèle
+- Vérifiez la significativité de vos régresseurs à l’aide de la **t-value**
+- Vérifiez le **signe** de vos régresseurs par rapport à vos hypothèses
+- Vérifiez la colinéarité à l’aide de la **VIF**
+- Si vous comparez plusieurs modèles, utilisez l’**AIC** ou au moins le r² ajusté
+- Comme pour la régression linéaire, validez les résidus du modèle (normalité, homoscédasticité, absence d'autocorrélation)
+
+
+---
+class: animated, fadeIn
+## Risques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Faible pouvoir explicatif du modèle si `\(y\)` est peu lié aux `\(xi\)`
+- evalué par le r² multiple
+
+Fortes corrélations entre les variabes `\(xi\)`
+- multicolinéarité
+- evalué par la VIF
+
+Trop de variables explicatives
+- surajustement, modèle difficilement interprétable
+- evalué par l'AIC
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 5- Réalisation
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Approches techniques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Plusieurs approches sont possibles pour réaliser techniquement une régression multiple : 
+
+1/ Ajouter manuellement dans le modèle les variables qui vous apparaissent pertinentes suite à vos recherches.
+- Vous pourrez plus facilement interpréter ce modèle et la causalité.
+- Mais ce modèle ne sera sans doute pas le meilleur.
+- Avec un fort risque d'avoir de la colinéarité et des régresseurs non significatifs dans le modèle.
+
+2/ Méthode pas-à-pas. 
+- Vous réalisez une régression multiple avec toutes les variables qui vous semble pertinentes, puis vous éliminer une à une les variables non significative. 
+- Par exemple en elevant d'abord le régresseur avec la t-value la moins significative, puis en faisant retourner le modèle sans cette variable. Vous poursuivez cette méthode jusqu'à avoir un modèle acceptable (signficatif, sans colinéarité).
+- Ce ne sera pas forcément le meilleur modèle, mais l'approche à le mérite d'être reproductible.
+
+---
+class: animated, fadeIn
+## Approches techniques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+3/ Méthode semi-assisté .
+- Le logiciel de statistique vous propose automatiquement les meilleurs modèles en fonction d’un critère comme l’AIC ou le r² ajusté.
+- Avec le risque d'avoir de ne pas comprendre les éventuelles causalité du modèle choisi
+
+C'est généralement la 3ème approche qui est choisie en statistique. Pour des raisons pratiques, c'est cette dernière qui sera abordée dans l'exemple suivant et que vous metterez en application.
+
+---
+class: animated, fadeIn
+## Exemple: modélisation du taux de chômage
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On cherche à modéliser des déterminants socio-démographiques du taux de chômage par département en 2012. La régression multiple est donc un outil adéquat pour répondre à cette problématique.
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_var_chom.png" width="80%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Analyse univariée
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On réalise une analyse univariée afin de mieux comprendre nos variables explicatives (succintes dans l'exemple pour des questions de temps...). Permet par exemple de transformer les variables.
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_univ.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Analyse bivariée
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_biv1.png" width="100%" /&gt;
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_biv2.png" width="100%" /&gt;
+]]
+
+Suppression des variables `\(xi\)` très corrélées entre elles (une seule conservée, par exemple lorsque p-value &lt;0.3)
+
+
+---
+class: animated, fadeIn
+## Analyse bivariée
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+On réalise la régression linéaire entre le taux de chômage et le % des 25-34 ans avec au maximum le brevet (sur la population des 25-34 ans) (R= 0,59 et significatif)
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_lin1.png" width="100%" /&gt;
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_lin2.png" width="80%" /&gt;
+]]
+
+
+---
+class: animated, fadeIn
+## Régression multiple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les logiciels de statistiques comme SAS et R permettent de déterminer le modèle le plus pertinent pour chaque nombre de régresseurs. L'affichage de ces modèles est fait en fonction d'un critère que vous choissisez (AIC, r² ajusté)
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_multi1.png" width="100%" /&gt;
+]
+
+
+---
+class: animated, fadeIn
+## Régression multiple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left3[
+- On constate qu’en ajoutant une variable au modèle linéaire à une variable, la quantité d’information portée par le modèle passe de 36% à 49% (pBrev_2009 + Dep_soc_2010).
+- 59% avec seulement 3 variables (pBrev_2009 + Dep_soc_2010 + Ens_col_2011). 
+- L’ajout d’une quatrième variable (p_act_ADM_2010) n’apporte que 4% d’information supplémentaire. Au-delà de 7 variables, l’information supplémentaire est négligeable et stagne.
+
+Etant donné son AIC faible (23,2 vs 28,7 pour le meilleur modèle a 5 variables) et un bon coefficient de détermination, on décide d’analyser le modèle à 6 variables. Le modèle à 7 variables ayant bien le plus faible AIC (22,7), mais le nombre de régresseurs commence à être trop important
+
+]
+
+.pull-right1[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_multi2.png" width="50%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Résultats à 6 variables
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+On relance cette fois ci la régression linéaire avec les 6 régresseurs, sans demander au logiciel de statistique de nous donner la liste des meilleurs modèles.
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_multi3.png" width="80%" /&gt;
+&lt;img src="./assets/images/5-multiple/ex_multi4.png" width="70%" /&gt;
+]
+.font90[Tous les paramètres &lt;span style="color:orange"&gt; t &lt;/span&gt; sont significatifs et la &lt;span style="color:red"&gt;VIF max&lt;/span&gt; est inférieure à 7 (5,01)]
+
+---
+class: animated, fadeIn
+## Analyse des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+L'analyse des résidus d'une régression multiple se fait en deux étapes : l'analyse des résidus du modèle puis de chaque régresseur
+
+Dans l'exemple on constate une très légère hétéroscédasticité **des résidus du modèle** avec une moins bonne adéquation pour les fortes valeurs (graphique en haut à gauche)	
+
+Comme l’analyse bivariée l’a montré, certaines valeurs ne s’ajustent pas de manière optimale sur une droite mais plutôt sur une courbe.
+
+Le passage en logarithme de certaines variables seraient donc une solution, mais au prix de la complexification du modèle.
+
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_multi5.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Analyse des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+L'analyse des résidus de chaque régresseur montre que la part des 25-34 ans avec un diplôme supérieur serait un candidat à la transformation en logarithme.
+
+On note aussi que le nombre de collège pour 10 000 hab. se comporte comme une variable discrète. Ceci est lié à l'arrondi de cette valeur dans le tableau de données.
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/5-multiple/ex_multi6.png" width="100%" /&gt;
+]]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 6- Cartographie des résidus
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Cartographie des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+**La cartographie des résidus** permet de **localiser** les individus bien représentés par le modèle, ainsi que ceux qui s’en écartent.  
+Le calcul des résidus peut être fait manuellement, mais des outils comme Philcarto permettent d’obtenir directement les valeurs des résidus dans le cas d'une regression linéaire simple. (cf. Guide Philcarto.pdf et TD).
+
+Le calcul manuel des résidus est relativement simple :
+- il suffit de connaitre l’équation de la droite de régression `\(y^*=ax+b\)`
+- de remplacer `\(x\)` par la valeur `\(x_i\)` associée (l’altitude à un point de mesure par exemple).
+- On obtient alors la valeur de `\(y_i^*\)`, la température estimée par le modèle à une altitude `\(xi\)`. 
+- Il ne reste plus qu'à faire l'opération : observé - estimé `\(e=y-y^*\)`
+
+---
+class: animated, fadeIn
+## Cartographie des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font80[
+La plupart du temps, la représentation des résidus se fait à l’aide de la variable visuelle valeur + couleur (ou texture), sous la forme d’une double gamme inversée:
+- Résidus négatifs (le modèle surestime l’observé)
+- Résidus proches du modèle (le modèle est conforme à l’observé)
+- Résidus positifs (le modèle sous-estime l’observé)
+
+Comme les résidus doivent avoir une distribution normale autours de la droite, on applique **une discrétisation en moyenne écart-type** pour les cartographier. Philcarto propose la discrétisation suivante par défaut:
+]
+.center-img[
+&lt;img src="./assets/images/4-corr/carto_ect.png" width="80%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Cartographie des résidus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font80[
+La mise en page d’une carte des résidus suit les mêmes principes que les autres cartes. Il faut cependant guider un maximum le lecteur, en lui donnant des informations techniques (la valeur des résidus), mais également une aide à l’interprétation 
+
+.center-img[
+&lt;img src="./assets/images/4-corr/carto_ex.PNG" width="70%" /&gt;
+]
+
+]
+
+
+---
+class: animated, fadeIn
+## Cartographie de l’évolution de l’écart au modèle
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La cartographie des résidus permet de repérer les individus qui s’ajustent le moins bien au modèle. Les cartes ci-dessous montrent l’écart au modèle en fonction du nombre de régresseurs.
+
+
+.center-img[
+&lt;img src="./assets/images/5-multiple/carto.png" width="100%" /&gt;
+]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# Conclusions
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La régression permet de modéliser une variable `\(y\)` à expliquer par des variables explicatives `\(xi\)` .
+
+La régression multiple **diffère peu** de la régression linéaire simple. Elle nécessite toutefois une **grande rigueur** a cause de la colinéarité. Bien utilisée, elle reste un outil puissant de modélisation, de prévision et d’explication. Elle peut également être très utile dans une démarche exploratoire.
+
+Pour mener a bien votre étude, pensez :
+- A bien définir votre problématique.
+- En émettant des hypothèses sur les relations de `\(y\)` avec les régresseurs.
+- A exclure certaines variables fortement corrélées entre elles (gardez soit le PIB ou le PNB, mais pas les deux).
+- A utiliser les valeurs **AIC, VIF et r² ajusté** pour vous aider dans le choix du modèle final. 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Attention vous n’êtes pas prisonniers des statistiques (dans une moindre mesure). Même si d’un point de vue statistique l’utilisation du critère AIC ou r² ajusté permettent de garantir les meilleurs modèles, il faut parfois prendre du recul et privilégier **l’interprétation des résultats**:
+- Si un modèle a un critère AIC plus grand de 2 points qu’un second modèle très complexe à interpréter mais avec le même nombre de régresseurs, il faut parfois privilégier le premier (en fonction de votre problématique)
+- Selon la problématique et plus généralement en science sociale, préférez un modèle à 4 variable expliquant 75 % de la variance de `\(y\)` mais plus simple à expliquer, qu’un modèle expliquant 85% de `\(y\)` mais avec 15 variables.
+
+Si la régression multiple peut-être utilisée comme un outil de démarche exploratoire pour expliquer un phénomène, nous verrons dans les prochains cours une méthode également basée sur le **résumé** d’un nuage de points : les analyses factorielles
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

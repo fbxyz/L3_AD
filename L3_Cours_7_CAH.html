@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L3_Cours_7_CAH.knit</title>
+    <meta charset="utf-8" />
+    <script src="assets/kePrint-0.0.1/kePrint.js"></script>
+    <link href="assets/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/theme_flo.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fonts_mtheme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/tools.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: center, middle, inverse, title-slide, animated, fadeIn
+# Analyse de données L3 2021-2022
+# Cours n°7- La Classification Ascendante Hiérarchique&lt;br /&gt; &lt;br /&gt;
+### Florian Bayer
+
+&lt;img src="./assets/css/logo_p1_col.jpg" STYLE="position:absolute; BOTTOM:20px; RIGHT:5px; WIDTH:15%;  "/&gt;
+
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+
+---
+class: animated, fadeIn
+## Principes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+En analyse de données, on cherche souvent à simplifier des résultats en regroupant les individus qui se **ressemblent**, tout en faisant en sorte de **séparer** ceux qui sont les plus différents. L'utilisation de **classes** est alors nécessaire :
+- l’intérieur des classes est homogène (minimisation de la variance intraclasse)
+- les classes sont hétérogènes les unes par rapport aux autres (maximisation de la variance interclasse)
+
+
+Ce principe est facilement applicable lorsque l'on souhaite classer les individus en fonction d'une seule variable : c'est la **discrétisation**.  
+
+Mais appliquer les méthodes de discrétisation conjointement sur deux ou plusieurs variables (le taux de chômage, la densité de médecins etc.) est beaucoup plus complexe.
+
+---
+class: animated, fadeIn
+## Principes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il existe des méthodes qui permettent de regrouper les individus qui disposent du même **profil** au sein de classe : 
+- Classe 1 : taux de chômage &lt;span style="color:#c0504d"&gt;**élevé**&lt;/span&gt; et densité de médecins &lt;span style="color:#c0504d"&gt;**élevé**&lt;/span&gt;
+- Classe 2 : taux de chômage &lt;span style="color:#9bbb59"&gt;**faible**&lt;/span&gt; et densité de médecins &lt;span style="color:#c0504d"&gt;**élevé**&lt;/span&gt;
+- Classes 3 : taux de chômage &lt;span style="color:#9bbb59"&gt;**faible**&lt;/span&gt; et densité de médecins &lt;span style="color:#9bbb59"&gt;**faible**&lt;/span&gt;
+
+La **Classification Ascendante Hiérarchique** (CAH) est une de ces méthodes. Elle permet de créer des regroupements, des **typologies** : 
+- Avoir une vision plus globale de la **différenciation**, parfois spatiale, des individus géographiques
+- Associer à chaque classe un type généralisant les éléments de la classe.
+
+---
+class: animated, fadeIn
+## Typologies : climats
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/climat.png" width="90%" /&gt;
+]
+
+
+---
+class: animated, fadeIn
+## Classification phylogénétique cladistique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/clade.png" width="65%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Profils des IRIS parisiens
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/iris.png" width="50%" /&gt;
+]
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 1- Principes de la CAH
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Ressemblance et différence
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Dans une classification, l’information globale est égale aux **ressemblances** + les **différences**:
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/ressemblance.png" width="100%" /&gt;
+]
+
+- On cherche des groupes homogènes : à l’intérieur de chaque groupe, les individus se **ressemblent** plus entre eux qu’ils ne ressemblent aux groupes voisins.
+- Tout en faisant en sorte que chaque groupe pris individuellement soit très **différent** des autres.
+
+---
+class: animated, fadeIn
+## Mesure par les individus
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Pour mesurer les différences et ressemblances avec une CAH, on regarde les **profils** des individus (entrée par les individus).
+.pull-left[
+&lt;table class="table" style="font-size: 12px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nom &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Densité &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Taux.urb. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Part.jeune &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tanzanie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Djibouti &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Éthiopie &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 54 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 46 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+.font85[ 
+- Les profils de la Tanzanie et de l’Ethiopie sont relativement proches, à l’exception d’une densité plus importante pour l’Ethiopie (33 vs 54).
+- Djibouti possède également un profil similaire, mais avec un taux d’urbanisation beaucoup plus important (83%, contre 28 et 18 % pour la Tanzanie et l’Ethiopie).
+
+Dans la CAH, les classes seront construites en fonction des caractéristiques de chaque profil.]
+]
+.pull-right[
+&lt;img src="L3_Cours_7_CAH_files/figure-html/unnamed-chunk-7-1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Principe
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La CAH tente de regrouper les individus en fonction de leur **degré de ressemblance** (profils), jusqu’à obtenir une classe les regroupant tous.
+
+Ce processus se fait via une méthode dite **itérative** (algorithme):
+1. On calcule les **distances** des individus entre eux (nuage de points ou tableau).
+2. On sélectionne les deux premiers individus qui se ressemblent le plus en fonction des variables de l’analyse. Ce sont donc les deux individus les plus **proches** en terme de distance.
+3. Un **nouveau groupe** est créé, contenant les 2 individus précédents. Les autres individus sont chacun dans une classe spécifique.
+4. Soit on cherche l’individus le plus proche de ce nouveau groupe, puis on l’agrège à ce groupe ou bien on créé un nouveau groupe. Cela dépend à chaque fois de la **distance minimale** entre les points ou entre les groupes.
+5. On **répète** l’opération jusqu’à ce qu’il n’y a plus qu’une seule classe.
+
+---
+class: animated, fadeIn
+## Choix des paramètres
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+La méthode de classification itérative suppose de définir en amont deux paramètres:
+
+.pull-left[
+.center[**Un critère de ressemblance (distance)**]
+- La métrique **euclidienne** s’utilise sur des tableaux élémentaires (même type de tableau que pour l’ACP)
+- La métrique du `\(\chi2\)` sera utilisé pour les tableaux de contingences (une différence de 1 à 5 n'est pas pareille qu'une différence entre 100 et 105)
+]
+
+.pull-right[
+.center[**Un critère d’agrégation**]
+- Il existe de nombreux critères d’agrégation, mais de manière générale, on utilise le critère dit de **Ward** (selon l’inertie). Il minimise la variance intraclasse et maximise la variance interclasse.
+]
+
+---
+class: animated, fadeIn
+## Algorithme 1
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Le logiciel détermine la matrice de distance entre chaque individus.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/algo1.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Algorithme 2
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Le logiciel détermine les deux individus qui se ressemblent le plus dans le nuage de point.
+
+Dans l’exemple, on prend les deux points les plus proches pour former le &lt;span style="color:#c0504d"&gt;1er groupe&lt;/span&gt;.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/algo2.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Algorithme 3
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Une première classe est formée, les autres individus étant seuls. 
+
+On détermine le centre de gravité du premier groupe &lt;span style="color:#c0504d"&gt;(croix rouge)&lt;/span&gt;, puis on recherche l’individu le plus proche de ce dernier.
+
+On forme ainsi le &lt;span style="color:#f79646"&gt;groupe 2&lt;/span&gt;, qui contient le  &lt;span style="color:#c0504d"&gt;1er groupe&lt;/span&gt; + le nouvel individu.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/algo3.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Algorithme 4
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+On détermine le centre de gravité de ce nouveau &lt;span style="color:#f79646"&gt;groupe 2 (croix orange)&lt;/span&gt; puis on recherche l’individu le plus proche de ce dernier. 
+
+On se rend compte que la distance entre le centre de gravité du Groupe 2 est plus grande que la distance entre les deux points en haut du nuage. 
+
+On forme donc un troisième groupe à partir de ces deux derniers points &lt;span style="color:#8064a2"&gt;(groupe 3)&lt;/span&gt;.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/algo4.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Algorithme 5
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Le dernier regroupement &lt;span style="color:#9bbb59"&gt;(groupe 4)&lt;/span&gt; contient tous les individus, l’analyse se termine.
+
+La croix verte correspond au centre de gravité du dernier regroupement.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/algo5.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Hiérarchie
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Cet algorithme va permettre de créer un **arbre hiérarchique** (dendrogramme), qui n’est autre que le résumé des différentes opérations précédentes. Il permettra de déterminer le nombre de classes.
+- On y trouvera au début l’ensemble des individus.
+- Puis chaque regroupement représenté 2 à 2.
+- Ainsi que l’inertie qui sépare les regroupement (longueur de branches de l’arbre).
+- Le dernier regroupement comprend tous les individus.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/hierarchie.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Etape 1 : 5 individus, 5 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/arbre1.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Etape 2 : 5-1 classes = 4 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/arbre2.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Etape 3 : 5-2 classes = 3 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/arbre3.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Etape 4 : 5-3 classes = 2 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/arbre4.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Etape 5 : 5-4 classes = 1 classe
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/arbre5.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Remarques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Avec la CAH, un individu ne peut appartenir qu’à une **seule classe**. De plus les partitions sont hiérarchisées et emboitées : 
+- au niveau le plus fin, chaque individu correspond à une classe.
+- Au niveau le plus agrégé, une seule classe comprend tous les individus
+
+Cela implique des modifications au niveau de l’**inertie** (=variance =information). 
+
+On la décompose en 2 ensembles : l’inertie **intraclasse** et l’inertie **interclasse**.
+- S’il y a autant de classe que d’individus, l’inertie est **minimale à l’intérieur** de chaque classe, **maximale entre les classes**
+- Plus on regroupe l’information en classe, plus elle résumée et simple, mais également **hétérogène** à l’intérieur des classes (les classes peuvent contenir des individus très différents les uns des autres). Dans ce cas, l'inertie intraclasse **augmente** au **détriment** de l'inertie interclasse.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 2- L'inertie
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Inertie : 11 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Chaque point &lt;span style="color:#2a6099"&gt;**bleu**&lt;/span&gt; correspond à la position d’un individu dans le nuage de point. Le point &lt;span style="color:#c0504d"&gt;**rouge**&lt;/span&gt; correspond au centre de gravité du nuage. 
+
+L’inertie totale correspond à la somme des &lt;span style="color:#999999"&gt;**distances**&lt;/span&gt; entre les &lt;span style="color:#2a6099"&gt;**individus**&lt;/span&gt; et le &lt;span style="color:#c0504d"&gt;**centre de gravité**&lt;/span&gt;
+
+S’il y a autant de classes que d’individus (un point bleu = une classe) : la variance intraclasse est **minimale** et la variance interclasse **maximale.** Aucune information n'est résumée et toute l'information initiale sera présente sur la carte.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/inertie1.png" width="100%" /&gt;
+]]
+
+Inertie totale = inertie intraclasse (nulle) + &lt;span style="color:#999999"&gt;inertie interclasse (forte)&lt;/span&gt;
+
+Information totale = 0 + &lt;span style="color:#999999"&gt;Somme des distances au centre de gravité&lt;/span&gt;
+
+---
+class: animated, fadeIn
+## Inertie : 3 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+En créant 3 classes, on commence à résumer l'information puisque l'inertie interclasse va baisser et celle intraclasse augmenter.
+
+La somme des longueurs des traits &lt;span style="color:#999999"&gt;**gris**&lt;/span&gt; correspond à l'inertie interclasse, qui est beaucoup **moins** importante que dans l'exemple précédent.
+
+La somme des longueurs des traits &lt;span style="color:#ff7f0e"&gt;**orange**&lt;/span&gt; correspond à l'inertie intraclasse. Elle est **plus** importante que précédemment. L'information sera moyennement résumée sur la carte.
+
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/inertie2.png" width="100%" /&gt;
+]]
+
+Inertie totale = &lt;span style="color:#ff7f0e"&gt;inertie intraclasse (moyenne)&lt;/span&gt; + &lt;span style="color:#999999"&gt;inertie interclasse (moyenne)&lt;/span&gt;
+
+---
+class: animated, fadeIn
+## Inertie : 2 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+
+On réduit le nombre de classes à 2. 
+
+L’inertie interclasse baisse puisque la &lt;span style="color:#999999"&gt;**somme des distances**&lt;/span&gt; aux centres des classes diminue.
+
+A l'inverse, &lt;span style="color:#ff7f0e"&gt;**l'inertie intraclasse augmente**&lt;/span&gt;. De plus, la classe de gauche devient plus hétérogène, avec des points de plus en plus éloignés du centre de la classe. L'information sera fortement résumée sur la carte.
+]
+
+.pull-right[.center-img[
+&lt;img src="./assets/images/9-CAH/inertie3.png" width="100%" /&gt;
+]]
+
+Inertie totale = &lt;span style="color:#ff7f0e"&gt;inertie intraclasse (forte)&lt;/span&gt; + &lt;span style="color:#999999"&gt;inertie interclasse (faible)&lt;/span&gt;
+
+---
+class: animated, fadeIn
+## Inertie : résumé 
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il est donc nécessaire de trouver un **équilibre** entre **résumé** de l'information (diminution de l'inertie interclasse) et des classes **homogènes** (inertie intraclasse la plus faible possible).
+
+Trop de classes et l’information ne sera pas résumée ; on met en avant les spécificité individuelles, sans comprendre qui ressemble à qui.
+- C'est le cas lorsque inertie interclasse est forte et celle intraclasse faible.
+
+Peu de classes et l’information sera trop résumée. Les classes seront très hétérogènes (les individus qui la composent ne se ressemblent peut-être pas)  
+- C'est le cas lorsque l'inertie interclasse est faible et l'inertie intraclasse forte.
+
+Le choix du nombre de classes et l’analyse de l’inertie est donc essentielle.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 3- Déterminer le nombre de classes
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Couper l'arbre !
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[
+Pour obtenir les classes, il suffit de **couper** l’arbre hiérarchique.
+Comme l’objectif de la classification est de conserver un bon compromis entre la variance interclasse (pour simplifier l’information) et intraclasse (pour regrouper les individus qui se ressemblent le plus), on coupe le plus souvent après le plus grand **saut** de l’arbre.
+- Un trop grand nombres de classes réduirait l’intérêt de la classification puisqu’on ne résumerait plus l’information.
+- Un trop petit nombre de classes produirait des résumés trop grossiers (classe très hétérogènes à l’intérieur).
+Dans tous les cas, le choix du nombre de classes se fait à posteriori.
+]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/9-CAH/tree.gif" width="100%" /&gt;
+]]
+
+
+---
+class: animated, fadeIn
+## 4 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/classe4.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## 3 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/classe3.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## 2 classes
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/classe2.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Remarques
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Couper après le saut le plus grand permet de **justifier** le nombre de classes choisi, mais ce nombre peut ne pas être en adéquation avec vos objectifs.
+
+Vous pouvez choisir **manuellement** un nombre de classes si jamais l’interprétation des résultats devient plus pertinente. Pour cela, vous pouvez vous aider des profils des classes (cf. chapitre suivant).
+
+Pensez également à prendre en compte le compromis entre inertie expliquée et la **représentation cartographique** (max 6 ou 7 classes).
+
+Enfin, certains logiciels comme SAS proposent un test de **Fisher** pour déterminer le nombre de classes optimal. Ce test correspond généralement à un découpage de l’arbre hiérarchique après le plus grand saut. S’il n’apporte pas beaucoup d’information en plus, c’est un bon moyen de justifier le choix du nombre de classes dans un article scientifique.
+
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 4- Mise en place et interprétation des résultats
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Méthodologie de mise en œuvre d’une CAH
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+- Formulation de la problématique
+- Sélection des données permettant d’y répondre
+- Analyse univariée et calcul du profil moyen de la zone d’étude (la moyenne de chaque variable)
+- Analyse bivariée pour supprimer d’éventuelles variables trop redondantes. Permet de simplifier l’interprétation, mais vous pourriez perdre certaines spécificités locales
+- Calcul de la CAH
+- Sélection du nombre de classes à l’aide de l’arbre hiérarchique
+- Interprétation des profils de chaque classe
+- Cartographie des résultats
+
+---
+class: animated, fadeIn
+## Données
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les méthodes de classification peuvent être réalisées sur des **tableaux élémentaires de données**. On sélectionne simplement les variables à inclure dans l’analyse. La distance à utiliser sera alors la distance **euclidienne.** Comme pour l’ACP, il est préférable de supprimer les variables fortement corrélées entre elles.
+
+On peut également réaliser une CAH sur un tableau de contingence. Dans ce cas, on utilisera une distance du `\(\chi2\)`.
+
+Les CAH peuvent également être réalisées sur des résultats d’analyses factorielles :
+- L’ACP ou l’AFC permet de réorganiser les données et de comprendre comment elles interagissent les une par rapport aux autres. Il faut cependant analyser tous les facteurs un à un.
+- La classification se fait alors sur tous les facteurs et permet de traiter 100% de l’information du tableau de départ.
+
+---
+class: animated, fadeIn
+## Le profil moyen
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il est **obligatoire** de calculer le **profil moyen** de chaque variable (la moyenne de chaque variable). En effet, les résultats de la CAH s'expriment en écart à la moyenne.
+
+Profil moyen de la densité de population, du taux d’urbanisation, de la part des actifs agricoles, du % de moins de 20 ans et de plus de 60 ans dans les pays Africains en 1999 :
+
+&lt;table class="table" style="font-size: 14px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Nom &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; DEN99 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; URB00. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; AGR00 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; JEU99 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; VIE99 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Profil Moyen &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 41.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 40.8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 61.4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43.7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.4 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+class: animated, fadeIn
+## Les sorties
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les sorties usuelles d’une CAH sont : 
+- L’arbre hiérarchique et les valeurs associées.
+- Les caractéristiques de chaque classe.
+
+Il existe généralement une sortie pour chaque partition :
+- Une sortie pour la partition en 2 classes.
+- En 3 classes.
+- En 4 classes etc.
+
+Chacune de ces sorties contient le profil de chaque classe, exprimé en écart type par rapport à la moyenne (le profil moyen).
+
+---
+class: animated, fadeIn
+## Les sorties : arbre hiérarchique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+L’arbre hiérarchique montre les sauts de **l’inertie perdue** dans la différenciation des classes (inertie interclasse). 
+Dans l’exemple ci-dessous, plus on va vers la gauche, plus le nombre de classes est important. 
+
+Si on coupe après le premier saut (barre rouge à droite), on obtiendra 2 classes (on compte le nombre de traits que la barre coupe). Il n'y a que 43,57% de l'information totale en interclasse, donc 56,73% de l'information qui se trouve dans les classes. L'information est donc très résumée.
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/Arbre02classes.svg" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Les sorties : arbre hiérarchique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Si on coupe après le second saut, on obtiendra 3 classes. Il y a 57,62% de l'information dans l'inertie en interclasse, donc 42,.8% de l'information qui se trouve dans les classes. L'information est donc un peu moins résumée que précédemment.
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/Arbre03classes.svg" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Les sorties : arbre hiérarchique
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Avec 12 classes, l'information est treu peu résumé : il y a 90,27% de l'information totale en interclasse, donc 9,73% de l'information qui se trouve dans les classes. 
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/Arbre12classes.svg" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Caractéristiques de chaque classe
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Les logiciels vous fourniront une analyse univariée par découpage (2, 3, 4, n classes): **nombre d’individus dans chaque classe**, min, max, **moyenne**, CV, **distance au profil moyen exprimé en écart-type**.
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/sortie_univ.png" width="80%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Caractéristiques de chaque classe
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+**C’est la distance aux moyennes exprimée en écart-type** qui permet d’interpréter les classes. Elle peut être accompagnée d’une aide à l’interprétation sous forme d’histogramme. On compare donc pour **chaque variable de chaque classe** l'écart à la **moyenne globale** (les pays Africains). C'est donc une comparaison relative.
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/sortie_univ2.png" width="100%" /&gt;
+]
+
+---
+class: animated, fadeIn
+## Interprétation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.font90[
+On interprète les classes comme des **sur/sous représentations **par rapport à la **MOYENNE** de l’ensemble des individus.
+
+Le profil de la classe 1 est relativement **proche du profil moyen** (tous les écarts sont petits). Par exemple, la moyenne de la variable densité dans cette classe est proche de la moyenne globale &lt;span style="color:#c0504d"&gt;(distance faible et positive)&lt;/span&gt;. On a vu dans le tableau 3.4 qu’elle valait 44,18 ; &lt;span style="color:#f79646"&gt;41,6&lt;/span&gt; pour l’ensemble des individus.
+
+La classe 2 à une moyenne pour la variable densité également proche de la moyenne globale,mais un peu plus faible (30,7). La distance reste toutefois faible &lt;span style="color:#8064a2"&gt;(-0,5 ect)&lt;/span&gt;. En revanche, on note une forte sous représentation des actifs du secteur agricole par rapport au profil moyen &lt;span style="color:#9bbb59"&gt;(distance inférieure = -1,5ect)&lt;/span&gt;. La moyenne de cette variable est en effet de 27,01% contre &lt;span style="color:#2a6099"&gt;61,4%&lt;/span&gt; pour l’ensemble des individus. Même constant pour la part des moins de 20 ans (JEU99). A l’opposé, on note une forte surreprésentation du % de 60 ans et plus dans la population totale et une nette surreprésentation du taux d’urbanisation.
+]
+
+.center-img[
+&lt;img src="./assets/images/9-CAH/interpret.png" width="100%" /&gt;
+]
+
+
+---
+class: animated, fadeIn
+## Interprétation
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Il n’y a pas de grandes difficultés dans l’interprétation des classes d’une CAH. Il faut cependant être conscient que les résultats ne permettent pas de déterminer si le taux d’urbanisation est beaucoup plus important dans telle ou telle classe.
+
+Vous devez les interpréter comme plus ou moins important **par rapport à la moyenne des individus** de votre étude.
+
+Si la moyenne du taux d’urbanisation est déjà importante pour tous les individus :
+- Une surreprésentation montrera que dans la classe concernée, le taux d’urbanisation est encore plus important que la moyenne globale.
+- Une sous représentation montrera que dans la classe concernée, le taux d’urbanisation est plus petit que la moyenne, mais pas forcément faible ou nul.
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# 5- Cartographie
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+
+---
+class: animated, fadeIn
+## Cartographie
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[ .font80[
+Les résultats d’une CAH peuvent être cartographiés. L’avantage de cette méthode pour les géographe est qu’elle aboutit souvent à des **régionalisations.** 
+
+La variable cartographiée est l’appartenance d’un individu à une classe. Il s’agit donc d’une variable qualitative nominale.
+
+L’exemple ci-contre montre le résultat d’une CAH sur les pays Africains, avec des données sur la densité de population, le taux d’urbanisation, la part des actif agricoles, la part des moins de 20 ans et des plus de 60 ans.
+
+Avec 2 classes, on explique 44,67% de l’inertie (information) totale.
+
+Si la &lt;span style="color:#c0504d"&gt;classe 1&lt;/span&gt; est relativement proche du profil moyen (écart faible), la &lt;span style="color:#2a6099"&gt;classe 2&lt;/span&gt; montre de fortes surreprésentations du taux d’urbanisation et du % des plus de 60 ans, de fortes sous représentation des actifs agricoles et du % de moins de 20 ans
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/9-CAH/carte1.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Cartographie
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[ .font80[
+Avec 3 classes, 54,86% de l’inertie totale est expliquée par 3 classes contre 44,67 avec 2 classes.
+Le profil de la &lt;span style="color:#2a6099"&gt;classe 2&lt;/span&gt; ne change pas, mais la &lt;span style="color:#c0504d"&gt;classe 1&lt;/span&gt; précédente se scinde en deux :
+- &lt;span style="color:#c0504d"&gt;Légère sous représentation de la densité de la population pour la classe 1 et légère sur représentation du taux d’urbanisation par rapport au profil moyen.&lt;/span&gt; 
+- &lt;span style="color:#9bbb59"&gt;Légère sous représentation du taux d’urbanisation et du % des plus de 60 ans dans la classe. Légère surreprésentation du % de moins de 20 ans et des actifs agricoles, par rapport au profil moyen.&lt;/span&gt; 
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/9-CAH/carte2.png" width="100%" /&gt;
+]]
+
+---
+class: animated, fadeIn
+## Cartographie
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+.pull-left[ .font90[
+Avec 5 classes, 68,7% de l’inertie totale est expliquée par les classes.
+A noter la mise en évidence d’un état spécifique (Burundi en rose)
+]]
+
+.pull-right[
+.center-img[
+&lt;img src="./assets/images/9-CAH/carte3.png" width="100%" /&gt;
+]]
+
+---
+class: inverse, center, middle, animated, fadeIn  
+# Conclusion
+
+&lt;img src="./assets/css/graticules.png" STYLE="position:absolute; BOTTOM:30px; RIGHT:0px; WIDTH:150%;"/&gt;
+&lt;div class="my-footer-title "&gt;&lt;/div&gt; 
+
+---
+class: animated, fadeIn
+## Concepts clés
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+- Les analyses factorielles permettent de décomposer l’information d’un tableau d’information géographique.
+- Les méthodes de classifications permettent de s’intéresser aux combinaisons géographiques de ce tableau, en regroupant les individus (les lignes) semblables et en éloignant les individus (les lignes) différenciés.
+- La CAH se base sur un partitionnement du tableau en classe avec des limites distinctes (un individu appartient à une seule classe)
+- Elle vise à créer des typologies, en regroupant les individus qui se ressemblent le plus (profils similaires) tout en faisant en sorte d'avoir des classes différentes les unes des autres
+
+---
+class: animated, fadeIn
+## Exemple
+&lt;div class="my-footer"&gt;&lt;span&gt;Université Paris 1 Panthéon Sorbonne - L3 2021-2022 : analyse de données - Florian Bayer&lt;/span&gt;&lt;/div&gt; 
+
+Exemple avec les CSP en France. Remarquez que les profils bleus se ressemblent, mais avec une intensité différente.
+
+.center-img[
+&lt;img src="./assets/images/1_Intro/stat3.png" width="100%" /&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="assets/libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
