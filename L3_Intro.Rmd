@@ -79,7 +79,6 @@ class: animated, fadeIn
 <div class="my-footer"><span>Université Paris 1 Panthéon Sorbonne - L3 `r annee` : analyse de données - Florian Bayer</span></div> 
 
 
-.pull-left3[
 - Acquérir les **bonnes pratiques** de la démarche scientifique
 - Tout en gardant un **lien concret** avec ce qui pourra vous être demandé une fois sur le marché du travail
 - Principes et méthodes de traitement en **analyse de données**
@@ -92,19 +91,6 @@ class: animated, fadeIn
   > - Envisager des méthodes de représentation (statistiques et cartographiques);
   > - Analyse des résultats
   > - Autonomie nécessaire pour traiter de gros volumes de données
-
-]
-
---
-
-.center-img[ .pull-right1[
-
-```{r echo=FALSE, out.width="100%"}
-knitr::include_graphics("./assets/images/1_Intro/margaret-hamilton.jpg")
-```
-.legend[Notes de cours d'une étudiante à la fin du semestre]
-]]
-
 
 ---
 class: animated, fadeIn
@@ -138,7 +124,7 @@ class: animated, fadeIn
 
 .zoom[
 ```{r echo=FALSE, out.width="100%"}
-knitr::include_graphics("./assets/images/1_Intro/calendrier_2020.png")
+knitr::include_graphics("./assets/images/1_Intro/calendrier_2022.png")
 ```
 ]
 
